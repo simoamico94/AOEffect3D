@@ -1,0 +1,60 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &776373272784121507
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3831185631604992354}
+  - component: {fileID: 3117437850488794184}
+  m_Layer: 0
+  m_Name: AOEffectManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3831185631604992354
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 776373272784121507}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 704.0711, y: 467.22488, z: -2.0302734}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3117437850488794184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 776373272784121507}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b75464be7664a8b4b867679398fe6c2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameState:
+    TimeRemaining: 0
+    GameMode: 
+    players: []
+  playerPrefab: {fileID: 8655893691397391989, guid: 46adb291bacf40546918a6fae6d7bd4e, type: 3}
+  gridManager: {fileID: 0}
+  debugData: '{     "TimeRemaining": 1031178,     "GameMode": "Playing",     "Players":
+    {         "OsFCKwPafFBfUiwAUVbk9muxB2h98QUlht1rUEuPcPw": {             "y": 39,            
+    "x": 33,             "energy": 19,             "health": 100         },        
+    "gUkHisQMzym6hrXxgAKNPyLpGnAUl9E6VP7HH3Mn0SM": {             "y": 22,            
+    "x": 5,             "energy": 19,             "health": 100         }     } }'
+  pollGameData: 0
+  pollingIntervalDuringWaiting: 5
+  pollingIntervalDuringGame: 0

@@ -1,0 +1,473 @@
+Using pre-set license
+Built from '2022.3/staging' branch; Version is '2022.3.15f1 (b58023a2b463) revision 11894819'; Using compiler version '192829333'; Build Type 'Release'
+OS: 'Windows 11  (10.0.22631) 64bit Education' Language: 'it' Physical Memory: 32703 MB
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1, IsPro: 1
+
+COMMAND LINE ARGUMENTS:
+G:\UnityEditors\2022.3.15f1\Editor\Unity.exe
+-adb2
+-batchMode
+-noUpm
+-name
+AssetImportWorker0
+-projectPath
+C:/Users/Simo/Desktop/AOEffect
+-logFile
+Logs/AssetImportWorker0.log
+-srvPort
+50772
+Successfully changed project path to: C:/Users/Simo/Desktop/AOEffect
+C:/Users/Simo/Desktop/AOEffect
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gfx=262144"
+Player connection [10404] Host "[IP] 192.168.1.5 [Port] 0 [Flags] 2 [Guid] 2793769109 [EditorId] 2793769109 [Version] 1048832 [Id] WindowsEditor(7,RAINBOW-STYLIN) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" joined multi-casting on [225.0.0.222:54997]...
+
+Player connection [10404] Host "[IP] 192.168.1.5 [Port] 0 [Flags] 2 [Guid] 2793769109 [EditorId] 2793769109 [Version] 1048832 [Id] WindowsEditor(7,RAINBOW-STYLIN) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" joined alternative multi-casting on [225.0.0.222:34997]...
+
+[Physics::Module] Initialized MultithreadedJobDispatcher with 11 workers.
+Refreshing native plugins compatible for Editor in 8.74 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 2022.3.15f1 (b58023a2b463)
+[Subsystems] Discovering subsystems at path G:/UnityEditors/2022.3.15f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/Users/Simo/Desktop/AOEffect/Assets
+GfxDevice: creating device client; threaded=0; jobified=0
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.1]
+    Renderer: NVIDIA GeForce GTX 1080 Ti (ID=0x1b06)
+    Vendor:   NVIDIA
+    VRAM:     11120 MB
+    Driver:   31.0.15.4584
+Initialize mono
+Mono path[0] = 'G:/UnityEditors/2022.3.15f1/Editor/Data/Managed'
+Mono path[1] = 'G:/UnityEditors/2022.3.15f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'G:/UnityEditors/2022.3.15f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56608
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: G:/UnityEditors/2022.3.15f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
+Register platform support module: G:/UnityEditors/2022.3.15f1/Editor/Data/PlaybackEngines/AndroidPlayer/UnityEditor.Android.Extensions.dll
+Register platform support module: G:/UnityEditors/2022.3.15f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.005526 seconds.
+- Loaded All Assemblies, in  0.410 seconds
+Native extension for WindowsStandalone target not found
+Native extension for Android target not found
+Android Extension - Scanning For ADB Devices 282 ms
+Native extension for WebGL target not found
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.665 seconds
+Domain Reload Profiling: 1075ms
+	BeginReloadAssembly (125ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (1ms)
+	RebuildCommonClasses (43ms)
+	RebuildNativeTypeToScriptingClass (12ms)
+	initialDomainReloadingComplete (56ms)
+	LoadAllAssembliesAndSetupDomain (174ms)
+		LoadAssemblies (125ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (170ms)
+			TypeCache.Refresh (169ms)
+				TypeCache.ScanAssembly (153ms)
+			ScanForSourceGeneratedMonoScriptInfo (0ms)
+			ResolveRequiredComponents (1ms)
+	FinalizeReload (666ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (594ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (417ms)
+			SetLoadedEditorAssemblies (5ms)
+			RefreshPlugins (0ms)
+			BeforeProcessingInitializeOnLoad (2ms)
+			ProcessInitializeOnLoadAttributes (122ms)
+			ProcessInitializeOnLoadMethodAttributes (48ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+========================================================================
+Worker process is ready to serve import requests
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.657 seconds
+Refreshing native plugins compatible for Editor in 2.53 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for Android target not found
+Native extension for WebGL target not found
+Package Manager log level set to [2]
+[Package Manager] Server::EnsureServerProcessIsRunning -- launch failed, reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] UpmClient::Send -- Unable to send message (not connected to UPM process).
+[Package Manager] Cannot connect to Unity Package Manager local server
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.682 seconds
+Domain Reload Profiling: 1339ms
+	BeginReloadAssembly (151ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (6ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (24ms)
+	RebuildCommonClasses (32ms)
+	RebuildNativeTypeToScriptingClass (11ms)
+	initialDomainReloadingComplete (43ms)
+	LoadAllAssembliesAndSetupDomain (418ms)
+		LoadAssemblies (306ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (203ms)
+			TypeCache.Refresh (177ms)
+				TypeCache.ScanAssembly (161ms)
+			ScanForSourceGeneratedMonoScriptInfo (20ms)
+			ResolveRequiredComponents (5ms)
+	FinalizeReload (683ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (503ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (22ms)
+			SetLoadedEditorAssemblies (4ms)
+			RefreshPlugins (0ms)
+			BeforeProcessingInitializeOnLoad (90ms)
+			ProcessInitializeOnLoadAttributes (363ms)
+			ProcessInitializeOnLoadMethodAttributes (22ms)
+			AfterProcessingInitializeOnLoad (2ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (7ms)
+Launched and connected shader compiler UnityShaderCompiler.exe after 0.05 seconds
+Refreshing native plugins compatible for Editor in 3.22 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 3171 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 34 unused Assets / (57.8 KB). Loaded Objects now: 3640.
+Memory consumption went from 133.8 MB to 133.7 MB.
+Total: 3.899100 ms (FindLiveObjects: 0.410200 ms CreateObjectMapping: 0.320500 ms MarkObjects: 3.007700 ms  DeleteObjects: 0.159800 ms)
+
+AssetImportParameters requested are different than current active one (requested -> active):
+  custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
+  custom:video-decoder-ogg-theora: a1e56fd34408186e4bbccfd4996cb3dc -> 
+  custom:framework-win-MediaFoundation: 216162199b28c13a410421893ffa2e32 -> 
+  custom:CustomObjectIndexerAttribute: 43b350a4d6e6d1791af0b5038c4bea17 -> 
+  custom:container-demuxer-webm: 4f35f7cbe854078d1ac9338744f61a02 -> 
+  custom:container-muxer-webm: aa71ff27fc2769a1b78a27578f13a17b -> 
+  custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
+  custom:SearchIndexIgnoredProperties: e643bd26f0fe6173181afceb89e7c659 -> 
+  custom:AudioImporter_EditorPlatform: d09bf68614088b80899f8185d706f6e7 -> 
+  custom:video-encoder-webm-vp8: eb34c28f22e8b96e1ab97ce403110664 -> 
+  custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+  custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+========================================================================
+Received Prepare
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  0.465 seconds
+Refreshing native plugins compatible for Editor in 2.59 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for Android target not found
+Native extension for WebGL target not found
+[Package Manager] Server::EnsureServerProcessIsRunning -- launch failed, reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] UpmClient::Send -- Unable to send message (not connected to UPM process).
+[Package Manager] Cannot connect to Unity Package Manager local server
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.888 seconds
+Domain Reload Profiling: 1352ms
+	BeginReloadAssembly (162ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (7ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (40ms)
+	RebuildCommonClasses (37ms)
+	RebuildNativeTypeToScriptingClass (16ms)
+	initialDomainReloadingComplete (31ms)
+	LoadAllAssembliesAndSetupDomain (217ms)
+		LoadAssemblies (284ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (14ms)
+			TypeCache.Refresh (7ms)
+				TypeCache.ScanAssembly (0ms)
+			ScanForSourceGeneratedMonoScriptInfo (0ms)
+			ResolveRequiredComponents (6ms)
+	FinalizeReload (889ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (441ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (22ms)
+			SetLoadedEditorAssemblies (4ms)
+			RefreshPlugins (0ms)
+			BeforeProcessingInitializeOnLoad (89ms)
+			ProcessInitializeOnLoadAttributes (303ms)
+			ProcessInitializeOnLoadMethodAttributes (21ms)
+			AfterProcessingInitializeOnLoad (2ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (7ms)
+Refreshing native plugins compatible for Editor in 2.69 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 3150 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 24 unused Assets / (31.5 KB). Loaded Objects now: 3643.
+Memory consumption went from 130.9 MB to 130.9 MB.
+Total: 2.854000 ms (FindLiveObjects: 0.242000 ms CreateObjectMapping: 0.225700 ms MarkObjects: 2.340600 ms  DeleteObjects: 0.044800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+AssetImportParameters requested are different than current active one (requested -> active):
+  custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
+  custom:video-decoder-ogg-theora: a1e56fd34408186e4bbccfd4996cb3dc -> 
+  custom:framework-win-MediaFoundation: 216162199b28c13a410421893ffa2e32 -> 
+  custom:CustomObjectIndexerAttribute: 43b350a4d6e6d1791af0b5038c4bea17 -> 
+  custom:container-demuxer-webm: 4f35f7cbe854078d1ac9338744f61a02 -> 
+  custom:container-muxer-webm: aa71ff27fc2769a1b78a27578f13a17b -> 
+  custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
+  custom:SearchIndexIgnoredProperties: e643bd26f0fe6173181afceb89e7c659 -> 
+  custom:AudioImporter_EditorPlatform: d09bf68614088b80899f8185d706f6e7 -> 
+  custom:video-encoder-webm-vp8: eb34c28f22e8b96e1ab97ce403110664 -> 
+  custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+  custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+========================================================================
+Received Import Request.
+  Time since last request: 3953.916598 seconds.
+  path: Assets/Graphics/skygradientNew.hdr
+  artifactKey: Guid(f457db5d157e4bb4e91e5f3b0290e79d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/skygradientNew.hdr using Guid(f457db5d157e4bb4e91e5f3b0290e79d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c3b190a615bd9c1ab00f5dea6ce01093') in 0.070169 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Prepare
+Begin MonoManager ReloadAssembly
+- Loaded All Assemblies, in  2.827 seconds
+Refreshing native plugins compatible for Editor in 3.20 ms, found 3 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for Android target not found
+Native extension for WebGL target not found
+[Package Manager] Server::EnsureServerProcessIsRunning -- launch failed, reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] UpmClient::Send -- Unable to send message (not connected to UPM process).
+[Package Manager] Cannot connect to Unity Package Manager local server
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in 10.597 seconds
+Domain Reload Profiling: 13423ms
+	BeginReloadAssembly (155ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (5ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (34ms)
+	RebuildCommonClasses (44ms)
+	RebuildNativeTypeToScriptingClass (14ms)
+	initialDomainReloadingComplete (23ms)
+	LoadAllAssembliesAndSetupDomain (2590ms)
+		LoadAssemblies (2657ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (18ms)
+			TypeCache.Refresh (8ms)
+				TypeCache.ScanAssembly (0ms)
+			ScanForSourceGeneratedMonoScriptInfo (0ms)
+			ResolveRequiredComponents (8ms)
+	FinalizeReload (10597ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (612ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (30ms)
+			SetLoadedEditorAssemblies (6ms)
+			RefreshPlugins (0ms)
+			BeforeProcessingInitializeOnLoad (105ms)
+			ProcessInitializeOnLoadAttributes (441ms)
+			ProcessInitializeOnLoadMethodAttributes (27ms)
+			AfterProcessingInitializeOnLoad (2ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (9ms)
+Refreshing native plugins compatible for Editor in 3.78 ms, found 3 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 3149 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 24 unused Assets / (31.5 KB). Loaded Objects now: 3649.
+Memory consumption went from 132.7 MB to 132.6 MB.
+Total: 4.245300 ms (FindLiveObjects: 0.868600 ms CreateObjectMapping: 0.400500 ms MarkObjects: 2.921000 ms  DeleteObjects: 0.053900 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+AssetImportParameters requested are different than current active one (requested -> active):
+  custom:container-demuxer-ogg: 62fdf1f143b41e24485cea50d1cbac27 -> 
+  custom:video-decoder-ogg-theora: a1e56fd34408186e4bbccfd4996cb3dc -> 
+  custom:framework-win-MediaFoundation: 216162199b28c13a410421893ffa2e32 -> 
+  custom:CustomObjectIndexerAttribute: 43b350a4d6e6d1791af0b5038c4bea17 -> 
+  custom:container-demuxer-webm: 4f35f7cbe854078d1ac9338744f61a02 -> 
+  custom:container-muxer-webm: aa71ff27fc2769a1b78a27578f13a17b -> 
+  custom:video-decoder-webm-vp8: 9c59270c3fd7afecdb556c50c9e8de78 -> 
+  custom:SearchIndexIgnoredProperties: e643bd26f0fe6173181afceb89e7c659 -> 
+  custom:AudioImporter_EditorPlatform: d09bf68614088b80899f8185d706f6e7 -> 
+  custom:video-encoder-webm-vp8: eb34c28f22e8b96e1ab97ce403110664 -> 
+  custom:audio-decoder-ogg-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+  custom:audio-encoder-webm-vorbis: bf7c407c2cedff20999df2af8eb42d56 -> 
+========================================================================
+Received Import Request.
+  Time since last request: 822.932268 seconds.
+  path: Assets/Graphics/skygradient3.hdr
+  artifactKey: Guid(0f1f63d6b5c3e274ea236c3b2653360f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/skygradient3.hdr using Guid(0f1f63d6b5c3e274ea236c3b2653360f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '41c86cb7df1553e2c8779931dc39df8a') in 0.058548 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 1432.951151 seconds.
+  path: Assets/Graphics/skygradient4.hdr
+  artifactKey: Guid(57dac0758d3ec1b4cb44914a61ae3c93) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/skygradient4.hdr using Guid(57dac0758d3ec1b4cb44914a61ae3c93) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3bd0a62a4fe685e40ea2018d42148670') in 0.014847 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 543.396197 seconds.
+  path: Assets/Graphics/horizont.hdr
+  artifactKey: Guid(28ff1ee1fc782d44faa12c9d0f4dee68) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/horizont.hdr using Guid(28ff1ee1fc782d44faa12c9d0f4dee68) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '14608e90a68dfadaa4f306e079857dcf') in 0.016278 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 356.565424 seconds.
+  path: Assets/Graphics/skygradientNew.hdr
+  artifactKey: Guid(f457db5d157e4bb4e91e5f3b0290e79d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/skygradientNew.hdr using Guid(f457db5d157e4bb4e91e5f3b0290e79d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '5e7c8500462a872928ebfe9f044a2b1f') in 0.092989 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 19.485646 seconds.
+  path: Assets/Graphics/skygradient4.hdr
+  artifactKey: Guid(57dac0758d3ec1b4cb44914a61ae3c93) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/skygradient4.hdr using Guid(57dac0758d3ec1b4cb44914a61ae3c93) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '3258612b3f8e31236ef5654df7274eba') in 0.036402 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 12.688650 seconds.
+  path: Assets/Graphics/skygradient3.hdr
+  artifactKey: Guid(0f1f63d6b5c3e274ea236c3b2653360f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/skygradient3.hdr using Guid(0f1f63d6b5c3e274ea236c3b2653360f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '269a2e4700290245c5c527879b774d07') in 0.031495 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 12.454327 seconds.
+  path: Assets/Graphics/horizont.hdr
+  artifactKey: Guid(28ff1ee1fc782d44faa12c9d0f4dee68) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/horizont.hdr using Guid(28ff1ee1fc782d44faa12c9d0f4dee68) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '719a05e0434b56a4de778dce3f1ff083') in 0.054637 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 471.243272 seconds.
+  path: Assets/Graphics/skygradient5.hdr
+  artifactKey: Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/skygradient5.hdr using Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '8432861e9bc437990df634c17447b1f7') in 0.013994 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 10.693938 seconds.
+  path: Assets/Graphics/skygradient5.hdr
+  artifactKey: Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/skygradient5.hdr using Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '6f2a6294634c33daa9a983d5d88efcd9') in 0.032809 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 369.030760 seconds.
+  path: Assets/Graphics/skygradient5 1.hdr
+  artifactKey: Guid(46a875f4e22702e429def17926577077) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/skygradient5 1.hdr using Guid(46a875f4e22702e429def17926577077) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'bfe6bff0841ce07d1975f068107a596d') in 0.038053 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 13.973712 seconds.
+  path: Assets/Graphics/skygradient5 1.hdr
+  artifactKey: Guid(46a875f4e22702e429def17926577077) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/skygradient5 1.hdr using Guid(46a875f4e22702e429def17926577077) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '58395a96f4b5f23b40dd304b885c706a') in 0.008573 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 2
+========================================================================
+Received Import Request.
+  Time since last request: 112.502088 seconds.
+  path: Assets/Graphics/Skygradient.hdr
+  artifactKey: Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/Skygradient.hdr using Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'fb2d2fe5e2dda2a1f1226be8db8c9a88') in 0.035189 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 13.553459 seconds.
+  path: Assets/Graphics/Skygradient.hdr
+  artifactKey: Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/Skygradient.hdr using Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '15f9c1abeb63650850fb0423f94e9385') in 0.012871 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 10.519397 seconds.
+  path: Assets/Graphics/Skygradient.hdr
+  artifactKey: Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/Skygradient.hdr using Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'a4ac08e18460bbf24acf10b062ed0117') in 0.016766 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 13.469905 seconds.
+  path: Assets/Graphics/Skygradient.hdr
+  artifactKey: Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/Skygradient.hdr using Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: '561b98bc5f784826e468987f629dd99c') in 0.026790 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 16.690685 seconds.
+  path: Assets/Graphics/Skygradient.hdr
+  artifactKey: Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/Skygradient.hdr using Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'c2a3e8d0d5289f8698c1b2672ae593bb') in 0.015789 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 8.513246 seconds.
+  path: Assets/Graphics/Skygradient.hdr
+  artifactKey: Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/Skygradient.hdr using Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'eaad4f8c65b3837a938da18a7bc87677') in 0.014912 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
+========================================================================
+Received Import Request.
+  Time since last request: 12.659576 seconds.
+  path: Assets/Graphics/Skygradient.hdr
+  artifactKey: Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Graphics/Skygradient.hdr using Guid(af35df735e1aa75498b52fed5fc1a5ae) Importer(815301076,1909f56bfc062723c751e8b465ee728b)  -> (artifact id: 'cbc1a49f16e06a9b9963fe2e5330340c') in 0.033126 seconds
+Number of updated asset objects reloaded before import = 0
+Number of asset objects unloaded after import = 1
