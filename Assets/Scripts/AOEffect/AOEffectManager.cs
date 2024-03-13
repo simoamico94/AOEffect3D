@@ -7,14 +7,19 @@ using UnityEngine.Networking;
 using System.Text;
 
 [Serializable]
-public class GameState
+public struct GameState
 {
 	public float TimeRemaining;
-	public string GameMode;
+	public GameMode GameMode;
 	public List<AOEffectPlayer> players;
 }
 
-
+public enum GameMode
+{
+	None,
+	Waiting,
+	Playing
+}
 
 public class AOEffectManager : MonoBehaviour
 {
@@ -22,23 +27,56 @@ public class AOEffectManager : MonoBehaviour
 	public GameState gameState;
 	public AOEffectPlayer playerPrefab;
 	public GridManager gridManager;
+	public AOEffectCanvasManager canvasManager;
 
-	public string debugData;
 	//Find a way to add players at the beginning while waiting -- maybe asking the status also before. That would be nice also to update timer while waiting and also to update lobby 
 
 	[Header("Polling Settings")]
-
+	public string gameProcessID;
 	public bool pollGameData = false;
 	public float pollingIntervalDuringWaiting = 5;
 	public float pollingIntervalDuringGame = 0;
 
-	private void Start()
+	private string baseUrl = "https://cu.ao-testnet.xyz/dry-run?process-id=";
+	private string baseJsonBody = @"{
+            ""Id"":""1234"",
+            ""Target"":""ARENAPROCESSID"",
+            ""Owner"":""1234"",
+            ""Tags"":[{""name"":""Action"",""value"":""GetGameState""}]
+        }";
+
+	[Header("Debug")]
+	public string debugData;
+
+	public void LoadGame(string processID)
 	{
-		//ParseGameState(debugData);
+		StopAllCoroutines();
+		gameProcessID = processID;
 		StartCoroutine(SendPostRequest());
 	}
 
-	public void ParseGameState(string jsonString)
+	public void ExitGame()
+	{
+		StopAllCoroutines();
+
+		if(gameState.GameMode != GameMode.None)
+		{
+			gameState.GameMode = GameMode.None;
+			if(gameState.players != null && gameState.players.Count > 0)
+			{
+				foreach(AOEffectPlayer p in gameState.players)
+				{
+					Destroy(p.gameObject);
+				}
+				gameState.players.Clear();
+			}
+			gameState.TimeRemaining = 0;
+		}
+
+		canvasManager.ExitGame();
+	}
+
+	private void UpdateGameState(string jsonString)
 	{
 		// Parse JSON string
 		JSONNode fullJsonNode = JSON.Parse(jsonString);
@@ -53,93 +91,122 @@ public class AOEffectManager : MonoBehaviour
 			JSONNode jsonNode = JSON.Parse(jsonString);
 			var keys = jsonNode.Keys;
 
-			JSONNode timeRemaining = jsonNode["TimeRemaining"];
-			gameState.TimeRemaining = timeRemaining.AsLong / 1000.0f;
-			gameState.GameMode = jsonNode["GameMode"];
-
-			JSONNode playersNode = jsonNode["Players"];
-			
-			if(gameState.GameMode.Equals("Playing"))
+			if(jsonNode.HasKey("TimeRemaining"))
 			{
-				foreach (KeyValuePair<string, JSONNode> kvp in playersNode.AsObject)
+				if(jsonNode["GameMode"] == "Playing")
 				{
-					string playerId = kvp.Key;
-					JSONNode playerNode = kvp.Value;
+					gameState.GameMode = GameMode.Playing;
+				}
+				else if(jsonNode["GameMode"] == "Waiting")
+				{
+					gameState.GameMode = GameMode.Waiting;
+				}
+				else
+				{
+					Debug.LogError("Game mode is " + jsonNode["GameMode"].ToString());
+				}
 
-					AOEffectPlayer player = gameState.players.Find(p => p.data.id == playerId);
+				JSONNode timeRemaining = jsonNode["TimeRemaining"];
+				gameState.TimeRemaining = timeRemaining.AsLong / 1000.0f;
+				canvasManager.UpdateTimerText(gameState.TimeRemaining);
 
-					if (player == null)
+				JSONNode playersNode = jsonNode["Players"];
+			
+				if(gameState.GameMode == GameMode.Playing)
+				{
+					foreach (KeyValuePair<string, JSONNode> kvp in playersNode.AsObject)
 					{
-						player = Instantiate(playerPrefab, this.transform);
-						if(playerId == AOSManager.ProcessName)
+						string playerId = kvp.Key;
+						JSONNode playerNode = kvp.Value;
+
+						AOEffectPlayer player = gameState.players.Find(p => p.data.id == playerId);
+
+						if (player == null)
 						{
-							player.isLocalPlayer = true;
+							player = Instantiate(playerPrefab, this.transform);
+							if(playerId == AOSManager.ProcessName)
+							{
+								player.isLocalPlayer = true;
+							}
+
+							gameState.players.Add(player);
 						}
 
-						gameState.players.Add(player);
-					}
+						AOEffectPlayerData newData = new AOEffectPlayerData();
 
-					AOEffectPlayerData newData = new AOEffectPlayerData();
-
-					newData.id = playerId;
+						newData.id = playerId;
 					
-					Transform newPos = gridManager.GetGridPos(playerNode["x"].AsInt - 1, playerNode["y"].AsInt - 1);
+						Transform newPos = gridManager.GetGridPos(playerNode["x"].AsInt - 1, playerNode["y"].AsInt - 1);
 
-					newData.pos = newPos.position;
-					newData.energy = playerNode["energy"].AsInt;
-					newData.health = playerNode["health"].AsInt;
+						newData.pos = newPos.position;
+						newData.energy = playerNode["energy"].AsInt;
+						newData.health = playerNode["health"].AsInt;
 
-					player.UpdateData(newData);
-				}
-
-				if(pollGameData)
-				{
-					StartCoroutine(SendPostRequest(pollingIntervalDuringGame));
-				}
-			}
-			else
-			{
-				if(pollGameData)
-				{
-					if(gameState.TimeRemaining > pollingIntervalDuringWaiting)
-					{
-						StartCoroutine(SendPostRequest(pollingIntervalDuringWaiting));
+						player.UpdateData(newData);
+						player.State = AOEffectPlayerState.Playing;
 					}
-					else
+
+					if(pollGameData)
 					{
 						StartCoroutine(SendPostRequest(pollingIntervalDuringGame));
 					}
 				}
+				else if (gameState.GameMode == GameMode.Waiting)
+				{
+					if(pollGameData)
+					{
+						if(gameState.TimeRemaining > pollingIntervalDuringWaiting)
+						{
+							StartCoroutine(SendPostRequest(pollingIntervalDuringWaiting));
+						}
+						else
+						{
+							StartCoroutine(SendPostRequest(pollingIntervalDuringGame));
+						}
+					}
 
-				//foreach (JSONNode playerIdNode in playersNode.AsArray)
-				//{
-				//	string playerId = playerIdNode.Value;
+					//foreach (JSONNode playerIdNode in playersNode.AsArray)
+					//{
+					//	string playerId = playerIdNode.Value;
 
-				//	AOEffectPlayer player = gameState.players.Find(p => p.playerData.id == playerId);
+					//	AOEffectPlayer player = gameState.players.Find(p => p.playerData.id == playerId);
 
-				//	if(player == null)
-				//	{
-				//		player = new AOEffectPlayer();
-				//	}
+					//	if(player == null)
+					//	{
+					//		player = new AOEffectPlayer();
+					//	}
 
-				//	AOEffectPlayerData newData = new AOEffectPlayerData();
-				//	newData.id = playerId;
-				//	player.playerState = AOEffectPlayerState.WaitingPaid;
-				//	player.playerData = newData;
+					//	AOEffectPlayerData newData = new AOEffectPlayerData();
+					//	newData.id = playerId;
+					//	player.playerState = AOEffectPlayerState.WaitingPaid;
+					//	player.playerData = newData;
 
 
-				//	gameState.players.Add(player);
-				//}
+					//	gameState.players.Add(player);
+					//}
+				}
+				else
+				{
+					canvasManager.ExitGame("Error with AOEffect Game");
+					Debug.LogError("Game State is NONE!");
+				}
 			}
+			else
+			{
+				canvasManager.ExitGame("Error with AOEffect Game");
+				Debug.LogError("NO KEY MESSAGES: " + jsonString);
+			}
+
 
 		}
 		else
 		{
+			canvasManager.ExitGame("Error with AOEffect Game");
 			Debug.LogError("NO KEY MESSAGES: " + jsonString);
 		}
 	}
 
-	IEnumerator SendPostRequest(float delay = 0)
+	private IEnumerator SendPostRequest(float delay = 0)
 	{
 		if(delay > 0)
 		{
@@ -147,15 +214,11 @@ public class AOEffectManager : MonoBehaviour
 		}
 
 		// Define the URL
-		string url = "https://cu.ao-testnet.xyz/dry-run?process-id=GxCjFNlapOKgFGhuNoT2bc7FY5FyXoLGXjTD6clXHcQ";
+		//string url = "https://cu.ao-testnet.xyz/dry-run?process-id=GxCjFNlapOKgFGhuNoT2bc7FY5FyXoLGXjTD6clXHcQ";
+		string url = baseUrl + gameProcessID;
 
 		// Define the request body
-		string jsonBody = @"{
-            ""Id"":""1234"",
-            ""Target"":""GxCjFNlapOKgFGhuNoT2bc7FY5FyXoLGXjTD6clXHcQ"",
-            ""Owner"":""1234"",
-            ""Tags"":[{""name"":""Action"",""value"":""GetGameState""}]
-        }";
+		string jsonBody = baseJsonBody.Replace("ARENAPROCESSID", gameProcessID);
 
 		// Create a UnityWebRequest object
 		UnityWebRequest request = new UnityWebRequest(url, "POST");
@@ -175,58 +238,13 @@ public class AOEffectManager : MonoBehaviour
 		// Check for errors
 		if (request.result != UnityWebRequest.Result.Success)
 		{
+			canvasManager.ExitGame("Error while loading AOEffect Game state. Check game process ID or internet connection");
 			Debug.LogError("Error: " + request.error);
 		}
 		else
 		{
 			// Print the response
-			ParseGameState(request.downloadHandler.text);
+			UpdateGameState(request.downloadHandler.text);
 		}
-	}
-
-	//public void ParseGameStateOld(string jsonString)
-	//{
-	//	// Parse JSON string
-	//	JSONNode jsonNode = JSON.Parse(jsonString);
-
-	//	// Populate GameState
-	//	gameState.TimeRemaining = jsonNode["TimeRemaining"].AsInt;
-	//	gameState.GameMode = jsonNode["GameMode"];
-
-	//	JSONNode playersNode = jsonNode["Players"];
-	//	foreach (KeyValuePair<string, JSONNode> kvp in playersNode.AsObject)
-	//	{
-	//		string playerId = kvp.Key;
-	//		JSONNode playerNode = kvp.Value;
-
-	//		AOEffectPlayer player = gameState.players.Find(p => p.playerData.id == playerId);
-
-	//		AOEffectPlayerData newData = new AOEffectPlayerData();
-
-	//		newData.pos = new Vector2(playerNode["x"].AsFloat, playerNode["y"].AsFloat);
-	//		newData.energy = playerNode["energy"].AsInt;
-	//		newData.health = playerNode["health"].AsInt;
-
-	//		player.UpdateData(newData);
-	//	}
-
-	//	//JSONNode playersNode = jsonNode["Players"];
-	//	//foreach (KeyValuePair<string, JSONNode> kvp in playersNode.AsObject)
-	//	//{
-	//	//	string playerId = kvp.Key;
-	//	//	JSONNode playerNode = kvp.Value;
-
-	//	//	AOEffectPlayer player = gameState.players.Find(p => p.id == playerId);
-
-	//	//	player.pos = new Vector2(playerNode["x"].AsFloat, playerNode["y"].AsFloat);
-	//	//	player.energy = playerNode["energy"].AsInt;
-	//	//	player.health = playerNode["health"].AsInt;
-	//	//}
-	//}
-
-	// Decide how to update the game: maybe we can do a method in the player class
-	public void UpdateGame()
-	{
-
 	}
 }

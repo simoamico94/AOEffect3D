@@ -5,8 +5,9 @@ using TMPro;
 using UnityEngine.UI;
 using System.IO;
 using SimpleFileBrowser;
+using System;
 
-public enum State
+public enum AOSState
 {
     LoggedOut = 0,
     Loading = 1,
@@ -21,12 +22,13 @@ public class AOSManager : MonoBehaviour
 	public float loginTimeout;
 	public bool useColorsInConsole;
 
-    [SerializeField] private State state;
-	public State State
+    [SerializeField] private AOSState state;
+	public AOSState State
 	{
 		get { return state; }
-		set { if (state != value) { state = value;  OnStateChanged(); } }
+		set { if (state != value) { state = value;  OnStateChanged(); OnAOSStateChanged?.Invoke(state); } }
 	}
+	public static Action<AOSState> OnAOSStateChanged;
 
 	[Header("Login UI")]
 	public GameObject loginPanel;
@@ -63,6 +65,7 @@ public class AOSManager : MonoBehaviour
 
 	[Header("Debug")]
 	public bool debug;
+	public bool logLines;
 	[SerializeField] private List<string> lineBuffer = new List<string>();
 
 	public static string ProcessName;
@@ -149,7 +152,7 @@ public class AOSManager : MonoBehaviour
     public void Login()
     {
 		errorText.text = "";
-		State = State.Loading;
+		State = AOSState.Loading;
 
         string loginString = "aos";
 
@@ -172,7 +175,7 @@ public class AOSManager : MonoBehaviour
 		StopAllCoroutines();
 		ClearShell();
 		RestartShell();
-		State = State.LoggedOut;
+		State = AOSState.LoggedOut;
 	}
 
 	public void LogLine(string line)
@@ -250,7 +253,11 @@ public class AOSManager : MonoBehaviour
 		{
 			foreach (string line in newLines)
 			{
-				Debug.Log(line);
+				if(logLines)
+				{
+					Debug.Log(line);
+				}
+
 				string convertedLine = ANSIConverter.ConvertANSIToTextMeshPro(line, useColorsInConsole);
 				string evaluated = EvaulateLine(convertedLine);
 
@@ -281,17 +288,17 @@ public class AOSManager : MonoBehaviour
 	{
 		switch (state)
 		{
-			case State.LoggedOut:
+			case AOSState.LoggedOut:
 				loginPanel.SetActive(true);
 				loadingPanel.SetActive(false);
 				mainPanel.SetActive(false);
 				break;
-			case State.Loading:
+			case AOSState.Loading:
 				loginPanel.SetActive(false);
 				loadingPanel.SetActive(true);
 				mainPanel.SetActive(false);
 				break;
-			case State.LoggedIn:
+			case AOSState.LoggedIn:
 				loginPanel.SetActive(false);
 				loadingPanel.SetActive(false);
 				mainPanel.SetActive(true);
@@ -322,7 +329,7 @@ public class AOSManager : MonoBehaviour
 
 			yield return new WaitForSeconds(0.5f);
 
-			State = State.LoggedIn;
+			State = AOSState.LoggedIn;
 
 			if (loadBlueprints)
 			{

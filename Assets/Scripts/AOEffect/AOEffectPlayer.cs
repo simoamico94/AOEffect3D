@@ -38,8 +38,7 @@ public class AOEffectPlayer : MonoBehaviour
 	}
 
 	[Header("Player Settings")]
-	public float moveSpeed = 5f; // Speed of movement
-	public float moveDuration = 1f; // Duration of movement in seconds
+	public float speed = 1f;
 
 	[Header("UI")]
     [SerializeField] private GameObject infoCanvas;
@@ -47,35 +46,30 @@ public class AOEffectPlayer : MonoBehaviour
 	[SerializeField] private TMP_Text healthText;
 	[SerializeField] private TMP_Text energyText;
 
-	//Do On Player State Changed
-
-	private Vector3 targetPos;
-	private float elapsedTime;
+	private Vector3 startPosition;
+	private Vector3 targetPosition;
+	private float elapsedTime = 0f;
+	private float moveTime = 1f;
 
 	private bool reachTargetPos = false;
 	private bool hasMovedOnce = false;
 
-	// Start is called before the first frame update
 	void Start()
     {
-        
+
     }
 
-    // Update is called once per frame
     void Update()
     {
         if(State == AOEffectPlayerState.Playing && reachTargetPos)
 		{
-			elapsedTime += Time.deltaTime;
-
-			// Calculate the interpolation factor based on elapsed time and move duration
-			float t = Mathf.Clamp01(elapsedTime / moveDuration);
-
-			// Use Vector3.Lerp to interpolate between current position and target position
-			transform.position = Vector3.Lerp(transform.position, targetPos, moveSpeed * Time.deltaTime);
-
+			if (elapsedTime < moveTime)
+			{
+				transform.position = Vector3.Lerp(startPosition, targetPosition, elapsedTime / moveTime);
+				elapsedTime += Time.deltaTime;
+			}
 			// Check if movement is complete
-			if (t >= 1f)
+			else
 			{
 				// Movement complete, reset elapsed time
 				reachTargetPos = false;
@@ -107,11 +101,25 @@ public class AOEffectPlayer : MonoBehaviour
 				if(!hasMovedOnce)
 				{
 					transform.position = newData.pos;
+					hasMovedOnce = true;
 				}
 				else
 				{
-					reachTargetPos = true;
-					elapsedTime = 0f;
+					float dist = Vector3.Distance(transform.position, newData.pos);
+
+					if (dist > 5) //Pacman effect -> teleport
+                    {
+						transform.position = newData.pos;
+						reachTargetPos = false;
+					}
+					else
+					{
+						startPosition = transform.position;
+						targetPosition = newData.pos;
+						reachTargetPos = true;
+						elapsedTime = 0f;
+						moveTime = dist/speed;
+					}
 				}
 			}
 		}

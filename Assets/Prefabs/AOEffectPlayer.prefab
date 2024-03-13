@@ -160,7 +160,7 @@ Transform:
   m_GameObject: {fileID: 1268214399140089626}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 704.0711, y: 467.22488, z: -2.0302734}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -187,8 +187,7 @@ MonoBehaviour:
     health: 0
   isLocalPlayer: 0
   state: 0
-  moveSpeed: 5
-  moveDuration: 1
+  speed: 1
   infoCanvas: {fileID: 3251113920007380454}
   idText: {fileID: 2022531175881566058}
   healthText: {fileID: 5625799558988715462}
@@ -355,6 +354,7 @@ GameObject:
   - component: {fileID: 5128869634136273900}
   - component: {fileID: 3582768802904434695}
   - component: {fileID: 6721343845089738570}
+  - component: {fileID: 2641716418264358997}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -445,6 +445,19 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &2641716418264358997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3251113920007380454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2bfc4af4933196459454f146fc0c62f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotateOnlyY: 1
 --- !u!1 &3983163232875636631
 GameObject:
   m_ObjectHideFlags: 0
@@ -605,7 +618,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6841045297678394874}
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
