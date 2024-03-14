@@ -62,6 +62,8 @@ public class AOSManager : MonoBehaviour
 	private const string forceLogoutString = "FORCELOGOUT";
 	private Coroutine waitAndStartCoroutine;
 	private bool updating = false;
+	private List<string> commandsHistory = new List<string>();
+	private int commandsHistoryIndex = 0;
 
 	[Header("Debug")]
 	public bool debug;
@@ -107,6 +109,29 @@ public class AOSManager : MonoBehaviour
 		if(Input.GetKeyDown(KeyCode.Escape))
 		{
 			Application.Quit();
+		}
+
+		if(Input.GetKeyDown(KeyCode.UpArrow))
+		{
+			if(commandsHistoryIndex >= 1)
+			{
+				commandsHistoryIndex--;
+				consoleInputField.text = commandsHistory[commandsHistoryIndex];
+			}
+		}
+
+		if (Input.GetKeyDown(KeyCode.DownArrow))
+		{
+			if(commandsHistoryIndex < commandsHistory.Count - 1)
+			{
+				commandsHistoryIndex++;
+				consoleInputField.text = commandsHistory[commandsHistoryIndex];
+			}
+			else if( commandsHistoryIndex == commandsHistory.Count - 1)
+			{
+				commandsHistoryIndex++;
+				consoleInputField.text = "";
+			}
 		}
 	}
 
@@ -242,6 +267,8 @@ public class AOSManager : MonoBehaviour
 		if (!string.IsNullOrEmpty(consoleInputField.text))
 		{
 			shell.RunCommand(consoleInputField.text);
+			commandsHistory.Add(consoleInputField.text);
+			commandsHistoryIndex = commandsHistory.Count;
 			consoleInputField.text = "";
 		}
 	}

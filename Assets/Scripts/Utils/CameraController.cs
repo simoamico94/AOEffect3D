@@ -9,6 +9,13 @@ public class CameraController : MonoBehaviour
 	public float verticalSpeed = 3f;
 	public float shiftMultiplier = 2f;
 
+	// Reference to your joystick components
+	public Joystick movementJoystick; // Assign in inspector
+	public Joystick rotationJoystick; // Assign in inspector
+
+	private Vector3 minBounds = new Vector3(-5, 0.5f, -5);
+	private Vector3 maxBounds;
+
 	private bool isRotating;
 	private Vector2 previousTouchPosition;
 	private float initialTouchDistance;
@@ -27,6 +34,7 @@ public class CameraController : MonoBehaviour
 	{
 		if(manager.gameState.GameMode == GameMode.Playing)
 		{
+			maxBounds = new Vector3(manager.gridManager.gridSizeX + 5, 10, manager.gridManager.gridSizeZ + 5);
 			// Use different input methods depending on the platform
 	#if UNITY_STANDALONE || UNITY_WEBGL
 			HandleMovement();
@@ -55,7 +63,15 @@ public class CameraController : MonoBehaviour
 		Vector3 horizontalMovement = transform.right * moveDirection.x + transform.forward * moveDirection.z;
 		Vector3 movement = (horizontalMovement + verticalMovement) * moveSpeed * moveSpeedMultiplier * Time.deltaTime;
 
-		transform.position += movement;
+		Vector3 newPosition = transform.position + movement;
+
+		// Clamp the new position to ensure it's within the bounds
+		newPosition.x = Mathf.Clamp(newPosition.x, minBounds.x, maxBounds.x);
+		newPosition.y = Mathf.Clamp(newPosition.y, minBounds.y, maxBounds.y);
+		newPosition.z = Mathf.Clamp(newPosition.z, minBounds.z, maxBounds.z);
+
+		// Apply the clamped position
+		transform.position = newPosition;
 	}
 
 	void HandleRotation()
@@ -90,7 +106,16 @@ public class CameraController : MonoBehaviour
 			{
 				Vector3 moveDirection = new Vector3(touchDeltaPosition.x, 0f, touchDeltaPosition.y).normalized;
 				Vector3 movement = moveDirection * moveSpeed * Time.deltaTime;
-				transform.position += transform.right * movement.x + transform.forward * movement.z;
+
+				Vector3 newPosition = transform.position + transform.right * movement.x + transform.forward * movement.z;
+
+				// Clamp the new position to ensure it's within the bounds
+				newPosition.x = Mathf.Clamp(newPosition.x, minBounds.x, maxBounds.x);
+				newPosition.y = Mathf.Clamp(newPosition.y, minBounds.y, maxBounds.y);
+				newPosition.z = Mathf.Clamp(newPosition.z, minBounds.z, maxBounds.z);
+
+				// Apply the clamped position
+				transform.position = newPosition;
 			}
 		}
 	}
@@ -124,5 +149,37 @@ public class CameraController : MonoBehaviour
 				transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0f);
 			}
 		}
+	}
+
+	void HandleJoystickMovement()
+	{
+		// Get input from the movement joystick
+		float horizontalInput = movementJoystick.Horizontal;
+		float verticalInput = movementJoystick.Vertical;
+
+		Vector3 moveDirection = new Vector3(horizontalInput, 0f, verticalInput).normalized;
+		Vector3 movement = moveDirection * moveSpeed * Time.deltaTime;
+
+		Vector3 newPosition = transform.position + transform.right * movement.x + transform.forward * movement.z;
+
+		// Clamp the new position to ensure it's within the bounds
+		newPosition.x = Mathf.Clamp(newPosition.x, minBounds.x, maxBounds.x);
+		newPosition.y = Mathf.Clamp(newPosition.y, minBounds.y, maxBounds.y);
+		newPosition.z = Mathf.Clamp(newPosition.z, minBounds.z, maxBounds.z);
+
+		// Apply the clamped position
+		transform.position = newPosition;
+	}
+
+	void HandleJoystickRotation()
+	{
+		// Get input from the rotation joystick
+		float rotationX = rotationJoystick.Horizontal * rotateSpeed;
+		float rotationY = rotationJoystick.Vertical * rotateSpeed;
+
+		// Apply rotation
+		transform.rotation *= Quaternion.Euler(-rotationY, rotationX, 0f);
+		// Prevent rotation around the Z axis
+		transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0f);
 	}
 }

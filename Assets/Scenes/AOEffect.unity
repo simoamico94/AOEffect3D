@@ -383,8 +383,10 @@ MonoBehaviour:
   manager: {fileID: 6922181063705169857}
   moveSpeed: 5
   rotateSpeed: 3
-  verticalSpeed: 3
+  verticalSpeed: 15
   shiftMultiplier: 2
+  movementJoystick: {fileID: 0}
+  rotationJoystick: {fileID: 0}
 --- !u!1 &1260352005
 GameObject:
   m_ObjectHideFlags: 0
@@ -1088,6 +1090,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5973594103026636581, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
+      propertyPath: m_Color.a
+      value: 0.78431374
+      objectReference: {fileID: 0}
     - target: {fileID: 6124511629263901899, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1160,7 +1166,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -491}
-  m_SizeDelta: {x: 1000, y: 50}
+  m_SizeDelta: {x: 1500, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1805506445
 MonoBehaviour:
@@ -1696,9 +1702,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridObjectPrefab: {fileID: 8627923486398756696, guid: 0e081a7ebaa65bf48b169f66b0d0adc4, type: 3}
   lineMaterial: {fileID: 2100000, guid: 91bd6ed794a4cab4cb701e6984c4007c, type: 2}
-  basePlane: {fileID: 0}
   gridSizeX: 40
-  gridSizeY: 40
+  gridSizeZ: 40
 --- !u!4 &2143930470
 Transform:
   m_ObjectHideFlags: 0

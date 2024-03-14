@@ -4,10 +4,9 @@ public class GridManager : MonoBehaviour
 {
 	public GameObject gridObjectPrefab; // Prefab for the game objects in the grid
 	public Material lineMaterial; // Material for the line renderer
-	public GameObject basePlane;
 
 	public int gridSizeX = 40; // Grid size in X direction
-	public int gridSizeY = 40; // Grid size in Y direction
+	public int gridSizeZ = 40; // Grid size in Z direction
 
 	private GameObject[,] gridObjects; // Matrix to store the game objects in the grid
 
@@ -19,20 +18,20 @@ public class GridManager : MonoBehaviour
 	void CreateGrid()
 	{
 		// Initialize the gridObjects matrix
-		gridObjects = new GameObject[gridSizeX, gridSizeY];
+		gridObjects = new GameObject[gridSizeX, gridSizeZ];
 
 		// Loop through each grid position and create a game object and line renderer
 		for (int x = 0; x < gridSizeX; x++)
 		{
-			for (int y = 0; y < gridSizeY; y++)
+			for (int z = 0; z < gridSizeZ; z++)
 			{
 				// Calculate the position for the game object
-				Vector3 position = new Vector3(x, 0, y);
+				Vector3 position = new Vector3(x, 0, z);
 
 				// Instantiate the game object at the calculated position
 				GameObject obj = Instantiate(gridObjectPrefab, position, Quaternion.identity);
 				obj.transform.parent = transform;
-				gridObjects[x, y] = obj; // Store the game object in the matrix
+				gridObjects[x, z] = obj; // Store the game object in the matrix
 
 				// Create a line renderer for the grid cell
 				LineRenderer lineRenderer = obj.AddComponent<LineRenderer>();
@@ -53,19 +52,14 @@ public class GridManager : MonoBehaviour
 				lineRenderer.SetPositions(points);
 			}
 		}
-
-		if(basePlane != null)
-		{
-			basePlane.transform.localScale = new Vector3(gridSizeX/10,1,gridSizeY/10);
-		}
 	}
 
 	// Function to get the game object at a specific grid position
-	public Transform GetGridPos(int x, int y)
+	public Transform GetGridPos(int x, int z)
 	{
-		if (x >= 0 && x < gridSizeX && y >= 0 && y < gridSizeY)
+		if (x >= 0 && x < gridSizeX && z >= 0 && z < gridSizeZ)
 		{
-			return gridObjects[x, y].transform;
+			return gridObjects[x, z].transform;
 		}
 		else
 		{

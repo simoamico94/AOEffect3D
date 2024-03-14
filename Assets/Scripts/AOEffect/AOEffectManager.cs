@@ -193,16 +193,30 @@ public class AOEffectManager : MonoBehaviour
 			}
 			else
 			{
-				canvasManager.ExitGame("Error with AOEffect Game");
-				Debug.LogError("NO KEY MESSAGES: " + jsonString);
+				if(jsonString.Contains("Not enough players registered!"))
+				{
+					Debug.LogWarning("Skipping State: " + jsonString);
+				}
+				else
+				{
+					canvasManager.ExitGame("Error with AOEffect Game");
+					Debug.LogError("NO KEY MESSAGES: " + jsonString);
+				}
 			}
 
 
 		}
 		else
 		{
-			canvasManager.ExitGame("Error with AOEffect Game");
-			Debug.LogError("NO KEY MESSAGES: " + jsonString);
+			if (jsonString.Contains("Not enough players registered!"))
+			{
+				Debug.LogWarning("Skipping State: " + jsonString);
+			}
+			else
+			{
+				canvasManager.ExitGame("Error with AOEffect Game");
+				Debug.LogError("NO KEY MESSAGES: " + jsonString);
+			}
 		}
 	}
 
@@ -227,7 +241,7 @@ public class AOEffectManager : MonoBehaviour
 		byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
 		request.uploadHandler = new UploadHandlerRaw(bodyRaw);
 		request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-
+		request.timeout = 5;
 		// Set the request headers
 		request.SetRequestHeader("Content-Type", "application/json");
 
@@ -244,7 +258,15 @@ public class AOEffectManager : MonoBehaviour
 		else
 		{
 			// Print the response
-			UpdateGameState(request.downloadHandler.text);
+			if(string.IsNullOrEmpty(request.downloadHandler.text))
+			{
+				canvasManager.ExitGame("Error while loading AOEffect Game state. Check game process ID or internet connection");
+				Debug.LogError("JSON is null!");
+			}
+			else
+			{
+				UpdateGameState(request.downloadHandler.text);
+			}
 		}
 	}
 }
