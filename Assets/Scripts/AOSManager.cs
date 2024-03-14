@@ -16,11 +16,14 @@ public enum AOSState
 
 public class AOSManager : MonoBehaviour
 {
+	public static AOSManager main { get; private set; }
+
 	[Header("General")]
 	public bool loadBlueprints;
     public bool userFriendlyLogs;
 	public float loginTimeout;
 	public bool useColorsInConsole;
+	public int maxConsoleLines;
 
     [SerializeField] private AOSState state;
 	public AOSState State
@@ -70,7 +73,23 @@ public class AOSManager : MonoBehaviour
 	public bool logLines;
 	[SerializeField] private List<string> lineBuffer = new List<string>();
 
-	public static string ProcessName;
+	public string processName;
+
+	private Action currentCallback;
+	private string currentCatchValue;
+
+	void Awake()
+	{
+		if (main == null)
+		{
+			main = this;
+			DontDestroyOnLoad(gameObject); // Optional: Keep the instance alive across scenes.
+		}
+		else
+		{
+			Destroy(gameObject); // Destroy if a duplicate exists.
+		}
+	}
 
 	void Start()
     {
@@ -203,23 +222,56 @@ public class AOSManager : MonoBehaviour
 		State = AOSState.LoggedOut;
 	}
 
-	public void LogLine(string line)
+	public void RunCommand(string command, Action callback, string catchValue)
+	{
+		shell.RunCommand(command);
+		currentCallback = callback;
+		currentCatchValue = catchValue;
+	}
+
+	public void RunCommand(string command)
+	{
+		shell.RunCommand(command);
+	}
+
+	protected void LogLine(string line)
 	{
 		consoleText.text += line + "\n";
-		if(debug)
+		TrimExcessLines();
+
+		if (debug)
 		{
 			lineBuffer.Add(line);
 		}
 	}
 
-	public string EvaulateLine(string line)
+	protected void TrimExcessLines()
+	{
+		string[] lines = consoleText.text.Split('\n');
+		if (lines.Length > maxConsoleLines)
+		{
+			// Calculate how many lines to remove
+			int linesToRemove = lines.Length - maxConsoleLines;
+			string trimmedText = string.Join("\n", lines, linesToRemove, lines.Length - linesToRemove);
+			consoleText.text = trimmedText;
+		}
+	}
+
+	protected string EvaulateLine(string line)
 	{
 		string evaluatedLine = "";
 
+		if (!string.IsNullOrEmpty(currentCatchValue) && line.Contains(currentCatchValue))
+		{
+			currentCallback?.Invoke();
+			currentCallback = null;
+			currentCatchValue = "";
+		}
+
 		if (line.StartsWith("aos process: "))
 		{
-			ProcessName = line.Replace("aos process:", "").Trim();
-			evaluatedLine = "Welcome " + ProcessName;
+			processName = line.Replace("aos process:", "").Trim();
+			evaluatedLine = "Welcome " + processName;
 
 			waitAndStartCoroutine = StartCoroutine(WaitAndFinalizeLogin());
 		}

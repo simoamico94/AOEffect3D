@@ -2,16 +2,16 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-	public AOEffectManager manager;
+	[SerializeField] private float moveSpeed = 5f;
+	[SerializeField] private float rotateSpeed = 2f;
+	[SerializeField] private float verticalSpeed = 3f;
+	[SerializeField] private float shiftMultiplier = 2f;
 
-	public float moveSpeed = 5f;
-	public float rotateSpeed = 2f;
-	public float verticalSpeed = 3f;
-	public float shiftMultiplier = 2f;
+	[SerializeField] private GameObject joystickPanel;
 
 	// Reference to your joystick components
-	public Joystick movementJoystick; // Assign in inspector
-	public Joystick rotationJoystick; // Assign in inspector
+	[SerializeField] private Joystick movementJoystick; // Assign in inspector
+	[SerializeField] private Joystick rotationJoystick; // Assign in inspector
 
 	private Vector3 minBounds = new Vector3(-5, 0.5f, -5);
 	private Vector3 maxBounds;
@@ -32,20 +32,25 @@ public class CameraController : MonoBehaviour
 
 	void Update()
 	{
-		if(manager.gameState.GameMode == GameMode.Playing)
+		if(AOEffectManager.main.gameState.GameMode == GameMode.Playing)
 		{
-			maxBounds = new Vector3(manager.gridManager.gridSizeX + 5, 10, manager.gridManager.gridSizeZ + 5);
+			maxBounds = new Vector3(AOEffectManager.main.gridManager.gridSizeX + 5, 10, AOEffectManager.main.gridManager.gridSizeZ + 5);
+
 			// Use different input methods depending on the platform
-	#if UNITY_STANDALONE || UNITY_WEBGL
+#if UNITY_STANDALONE || UNITY_WEBGL
 			HandleMovement();
 			HandleRotation();
-	#elif UNITY_IOS || UNITY_ANDROID
-			HandleTouchMovement();
-			HandleTouchRotation();
-	#endif
+#elif UNITY_IOS || UNITY_ANDROID
+			//HandleTouchMovement();
+			//HandleTouchRotation();
+			joystickPanel.SetActive(true);
+			HandleJoystickMovement();
+			HandleJoystickRotation();
+#endif
 		}
 		else
 		{
+			joystickPanel.SetActive(false);
 			transform.position = startPos;
 			transform.rotation = startRot;
 		}
@@ -174,8 +179,8 @@ public class CameraController : MonoBehaviour
 	void HandleJoystickRotation()
 	{
 		// Get input from the rotation joystick
-		float rotationX = rotationJoystick.Horizontal * rotateSpeed;
-		float rotationY = rotationJoystick.Vertical * rotateSpeed;
+		float rotationX = rotationJoystick.Horizontal * rotateSpeed/2;
+		float rotationY = rotationJoystick.Vertical * rotateSpeed/2;
 
 		// Apply rotation
 		transform.rotation *= Quaternion.Euler(-rotationY, rotationX, 0f);

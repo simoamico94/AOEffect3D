@@ -23,11 +23,16 @@ public enum GameMode
 
 public class AOEffectManager : MonoBehaviour
 {
+	public static AOEffectManager main { get; private set; }
+
+	public bool LocalPlayerExists => AOSManager.main != null && !string.IsNullOrEmpty(AOSManager.main.processName);
+	public bool LocalPlayerIsRegistered => !registered && AOSManager.main != null && !string.IsNullOrEmpty(AOSManager.main.processName) && gameState.players != null && gameState.players.Count > 0 && gameState.players.Exists(p => p.isLocalPlayer);
+
 	[Header("AOEffectManager")]
 	public GameState gameState;
-	public AOEffectPlayer playerPrefab;
-	public GridManager gridManager;
 	public AOEffectCanvasManager canvasManager;
+	public GridManager gridManager;
+	public AOEffectPlayer playerPrefab;
 
 	//Find a way to add players at the beginning while waiting -- maybe asking the status also before. That would be nice also to update timer while waiting and also to update lobby 
 
@@ -36,6 +41,10 @@ public class AOEffectManager : MonoBehaviour
 	public bool pollGameData = false;
 	public float pollingIntervalDuringWaiting = 5;
 	public float pollingIntervalDuringGame = 0;
+
+	public bool doTick;
+	public float tickTime;
+	private float elapsedTickTime = 0;
 
 	private string baseUrl = "https://cu.ao-testnet.xyz/dry-run?process-id=";
 	private string baseJsonBody = @"{
@@ -47,6 +56,41 @@ public class AOEffectManager : MonoBehaviour
 
 	[Header("Debug")]
 	public string debugData;
+	public bool logGameState;
+
+	private Coroutine sendPostRequest;
+	private Coroutine regiterCoroutine;
+
+	private bool registered = false;
+
+	private bool hasAlreadyFoundError = false;
+
+	void Awake()
+	{
+		if (main == null)
+		{
+			main = this;
+			DontDestroyOnLoad(gameObject); // Optional: Keep the instance alive across scenes.
+		}
+		else
+		{
+			Destroy(gameObject); // Destroy if a duplicate exists.
+		}
+	}
+
+	private void Update()
+	{
+		if(gameState.GameMode != GameMode.None && AOSManager.main != null && doTick)
+		{
+			if(elapsedTickTime > tickTime)
+			{
+				AOSManager.main.RunCommand("Send({ Target = \"" + gameProcessID + "\", Action = \"Tick\"})");
+				elapsedTickTime = 0;
+			}
+
+			elapsedTickTime += Time.deltaTime;
+		}
+	}
 
 	public void LoadGame(string processID)
 	{
@@ -73,7 +117,94 @@ public class AOEffectManager : MonoBehaviour
 			gameState.TimeRemaining = 0;
 		}
 
+		registered = false;
+		hasAlreadyFoundError = false;
+
 		canvasManager.ExitGame();
+	}
+
+	public void RegisterToGame(Action<bool> callback)
+	{
+		regiterCoroutine = StartCoroutine(RegisterToGameCoroutine(callback));
+	}
+
+	private IEnumerator RegisterToGameCoroutine(Action<bool> registrationCallback)
+	{
+		yield return null;
+
+		bool done = false;
+		float elapsedTime = 0;
+		float timeOut = 10;
+
+		Action callback = () => { done = true; }; 
+
+		AOSManager.main.RunCommand($"Game = \"{gameProcessID}\"", callback, "undefined");
+		canvasManager.SetGameInfoText("Assigning Game variable..");
+
+		while (!done && elapsedTime < timeOut)
+		{
+			elapsedTime += Time.deltaTime;
+			yield return null;
+		}
+		if (!done)
+		{
+			registrationCallback.Invoke(false);
+			yield break;
+		}
+		done = false;
+		elapsedTime = 0;
+
+		AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Register\" })", callback, "Registered");
+		canvasManager.SetGameInfoText("Registering..");
+		
+		while (!done && elapsedTime < timeOut)
+		{
+			elapsedTime += Time.deltaTime;
+			yield return null;
+		}
+		if (!done)
+		{
+			registrationCallback.Invoke(false);
+			yield break;
+		}
+		done = false;
+		elapsedTime = 0;
+
+		AOSManager.main.RunCommand("Send({ Target = Game, Action = \"RequestTokens\"})", callback, "Credit-Notice");
+		canvasManager.SetGameInfoText("Requesting tokens..");
+
+		while (!done && elapsedTime < timeOut)
+		{
+			elapsedTime += Time.deltaTime;
+			yield return null;
+		}
+		if (!done)
+		{
+			registrationCallback.Invoke(false);
+			yield break;
+		}
+		done = false;
+		elapsedTime = 0;
+
+		AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Transfer\", Recipient = Game, Quantity = \"1000\"})", callback, "Payment-Received");
+		canvasManager.SetGameInfoText("Sending tokens..");
+
+		while (!done && elapsedTime < timeOut)
+		{
+			elapsedTime += Time.deltaTime;
+			yield return null;
+		}
+
+		if (!done)
+		{
+			registrationCallback.Invoke(false);
+			yield break;
+		}
+		else
+		{
+			registered = true;
+			registrationCallback.Invoke(true);
+		}
 	}
 
 	private void UpdateGameState(string jsonString)
@@ -86,14 +217,36 @@ public class AOEffectManager : MonoBehaviour
 		{
 			jsonString = fullJsonNode["Messages"].AsArray[0]["Data"];
 
-			Debug.Log(jsonString);
+			if(string.IsNullOrEmpty(jsonString))
+			{
+				if(hasAlreadyFoundError || AOSManager.main == null)
+				{
+					Debug.LogError("Game State Data is null!");
+					canvasManager.ExitGame("Game State Data is null!");
+				}
+				else
+				{
+					hasAlreadyFoundError = true;
+					AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+					StartCoroutine(SendPostRequest(5));
+				}
+
+				return;
+			}
+
+			if (logGameState)
+			{
+				Debug.Log(jsonString);
+			}
 
 			JSONNode jsonNode = JSON.Parse(jsonString);
 			var keys = jsonNode.Keys;
 
 			if(jsonNode.HasKey("TimeRemaining"))
 			{
-				if(jsonNode["GameMode"] == "Playing")
+				hasAlreadyFoundError = false;
+
+				if (jsonNode["GameMode"] == "Playing")
 				{
 					gameState.GameMode = GameMode.Playing;
 				}
@@ -124,7 +277,7 @@ public class AOEffectManager : MonoBehaviour
 						if (player == null)
 						{
 							player = Instantiate(playerPrefab, this.transform);
-							if(playerId == AOSManager.ProcessName)
+							if(AOSManager.main != null && playerId == AOSManager.main.processName)
 							{
 								player.isLocalPlayer = true;
 							}
@@ -136,7 +289,7 @@ public class AOEffectManager : MonoBehaviour
 
 						newData.id = playerId;
 					
-						Transform newPos = gridManager.GetGridPos(playerNode["x"].AsInt - 1, playerNode["y"].AsInt - 1);
+						Transform newPos = gridManager.GetGridPos(playerNode["y"].AsInt - 1, playerNode["x"].AsInt - 1);
 
 						newData.pos = newPos.position;
 						newData.energy = playerNode["energy"].AsInt;
@@ -153,6 +306,14 @@ public class AOEffectManager : MonoBehaviour
 				}
 				else if (gameState.GameMode == GameMode.Waiting)
 				{
+					if(gameState.players != null && gameState.players.Count > 0)
+					{
+						foreach(AOEffectPlayer player in gameState.players)
+						{
+							player.State = AOEffectPlayerState.Waiting;
+						}
+					}
+					
 					if(pollGameData)
 					{
 						if(gameState.TimeRemaining > pollingIntervalDuringWaiting)
@@ -187,8 +348,18 @@ public class AOEffectManager : MonoBehaviour
 				}
 				else
 				{
-					canvasManager.ExitGame("Error with AOEffect Game");
-					Debug.LogError("Game State is NONE!");
+					if (hasAlreadyFoundError || AOSManager.main == null)
+					{
+						canvasManager.ExitGame("Game state not recognized");
+						Debug.LogError("Game state not recognized");
+						return;
+					}
+					else
+					{
+						hasAlreadyFoundError = true;
+						AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+						StartCoroutine(SendPostRequest(5));
+					}
 				}
 			}
 			else
@@ -199,12 +370,20 @@ public class AOEffectManager : MonoBehaviour
 				}
 				else
 				{
-					canvasManager.ExitGame("Error with AOEffect Game");
-					Debug.LogError("NO KEY MESSAGES: " + jsonString);
+					if (hasAlreadyFoundError || AOSManager.main == null)
+					{
+						canvasManager.ExitGame("TimeRemaining not found!");
+						Debug.LogError("NO KEY TimeRemaining: " + jsonString);
+						return;
+					}
+					else
+					{
+						hasAlreadyFoundError = true;
+						AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+						StartCoroutine(SendPostRequest(5));
+					}
 				}
 			}
-
-
 		}
 		else
 		{
@@ -214,8 +393,18 @@ public class AOEffectManager : MonoBehaviour
 			}
 			else
 			{
-				canvasManager.ExitGame("Error with AOEffect Game");
-				Debug.LogError("NO KEY MESSAGES: " + jsonString);
+				if (hasAlreadyFoundError || AOSManager.main == null)
+				{
+					canvasManager.ExitGame("Messages key not found!");
+					Debug.LogError("NO KEY Messages: " + jsonString);
+					return;
+				}
+				else
+				{
+					hasAlreadyFoundError = true;
+					AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+					StartCoroutine(SendPostRequest(5));
+				}
 			}
 		}
 	}
@@ -228,7 +417,6 @@ public class AOEffectManager : MonoBehaviour
 		}
 
 		// Define the URL
-		//string url = "https://cu.ao-testnet.xyz/dry-run?process-id=GxCjFNlapOKgFGhuNoT2bc7FY5FyXoLGXjTD6clXHcQ";
 		string url = baseUrl + gameProcessID;
 
 		// Define the request body

@@ -8,10 +8,9 @@ using UnityEngine;
 public enum AOEffectPlayerState
 {
     Nothing = 0,
-    WaitingUnpaid = 1,
-    WaitingPaid = 2,
-    Playing = 3,
-    Dead = 4
+    Waiting = 1,
+    Playing = 2,
+    Dead = 3
 }
 
 [Serializable]
@@ -29,6 +28,7 @@ public class AOEffectPlayer : MonoBehaviour
 	[Header("Player Info")]
 	public AOEffectPlayerData data;
     public bool isLocalPlayer;
+	public GameObject marker;
 	
 	[SerializeField] private AOEffectPlayerState state;
 	public AOEffectPlayerState State
@@ -61,6 +61,8 @@ public class AOEffectPlayer : MonoBehaviour
 
     void Update()
     {
+		marker.SetActive(isLocalPlayer);
+
         if(State == AOEffectPlayerState.Playing && reachTargetPos)
 		{
 			if (elapsedTime < moveTime)
@@ -133,12 +135,11 @@ public class AOEffectPlayer : MonoBehaviour
 		{
 			case AOEffectPlayerState.Nothing:
 				break;
-			case AOEffectPlayerState.WaitingUnpaid:
-				break;
-			case AOEffectPlayerState.WaitingPaid:
+			case AOEffectPlayerState.Waiting:
+				gameObject.SetActive(false);
 				break;
 			case AOEffectPlayerState.Playing:
-				infoCanvas.SetActive(true);
+				gameObject.SetActive(true);
 				break;
 			case AOEffectPlayerState.Dead:
 				gameObject.SetActive(false);

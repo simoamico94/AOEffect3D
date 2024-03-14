@@ -46,15 +46,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameState:
     TimeRemaining: 0
-    GameMode: 
+    GameMode: 0
     players: []
-  playerPrefab: {fileID: 8655893691397391989, guid: 46adb291bacf40546918a6fae6d7bd4e, type: 3}
+  canvasManager: {fileID: 0}
   gridManager: {fileID: 0}
-  debugData: '{     "TimeRemaining": 1031178,     "GameMode": "Playing",     "Players":
-    {         "OsFCKwPafFBfUiwAUVbk9muxB2h98QUlht1rUEuPcPw": {             "y": 39,            
-    "x": 33,             "energy": 19,             "health": 100         },        
-    "gUkHisQMzym6hrXxgAKNPyLpGnAUl9E6VP7HH3Mn0SM": {             "y": 22,            
-    "x": 5,             "energy": 19,             "health": 100         }     } }'
-  pollGameData: 0
+  playerPrefab: {fileID: 8655893691397391989, guid: 46adb291bacf40546918a6fae6d7bd4e, type: 3}
+  gameProcessID: 
+  pollGameData: 1
   pollingIntervalDuringWaiting: 5
   pollingIntervalDuringGame: 0
+  doTick: 1
+  tickTime: 1
+  debugData: GxCjFNlapOKgFGhuNoT2bc7FY5FyXoLGXjTD6clXHcQ
+  logGameState: 0
