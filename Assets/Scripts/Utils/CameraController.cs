@@ -7,11 +7,12 @@ public class CameraController : MonoBehaviour
 	[SerializeField] private float verticalSpeed = 3f;
 	[SerializeField] private float shiftMultiplier = 2f;
 
+	[Header("Mobile")]
+
 	[SerializeField] private GameObject joystickPanel;
 
-	// Reference to your joystick components
-	[SerializeField] private Joystick movementJoystick; // Assign in inspector
-	[SerializeField] private Joystick rotationJoystick; // Assign in inspector
+	[SerializeField] private Joystick movementJoystick;
+	[SerializeField] private Joystick rotationJoystick; 
 
 	private Vector3 minBounds = new Vector3(-5, 0.5f, -5);
 	private Vector3 maxBounds;
@@ -36,13 +37,10 @@ public class CameraController : MonoBehaviour
 		{
 			maxBounds = new Vector3(AOEffectManager.main.gridManager.gridSizeX + 5, 10, AOEffectManager.main.gridManager.gridSizeZ + 5);
 
-			// Use different input methods depending on the platform
 #if UNITY_STANDALONE || UNITY_WEBGL
 			HandleMovement();
 			HandleRotation();
 #elif UNITY_IOS || UNITY_ANDROID
-			//HandleTouchMovement();
-			//HandleTouchRotation();
 			joystickPanel.SetActive(true);
 			HandleJoystickMovement();
 			HandleJoystickRotation();
@@ -50,7 +48,9 @@ public class CameraController : MonoBehaviour
 		}
 		else
 		{
+#if UNITY_IOS || UNITY_ANDROID
 			joystickPanel.SetActive(false);
+#endif
 			transform.position = startPos;
 			transform.rotation = startRot;
 		}
@@ -100,69 +100,13 @@ public class CameraController : MonoBehaviour
 		}
 	}
 
-	void HandleTouchMovement()
-	{
-		if (Input.touchCount > 0)
-		{
-			Touch touch = Input.GetTouch(0);
-			Vector2 touchDeltaPosition = touch.deltaPosition;
-
-			if (!isRotating) // Use single touch movement to move the camera if not rotating
-			{
-				Vector3 moveDirection = new Vector3(touchDeltaPosition.x, 0f, touchDeltaPosition.y).normalized;
-				Vector3 movement = moveDirection * moveSpeed * Time.deltaTime;
-
-				Vector3 newPosition = transform.position + transform.right * movement.x + transform.forward * movement.z;
-
-				// Clamp the new position to ensure it's within the bounds
-				newPosition.x = Mathf.Clamp(newPosition.x, minBounds.x, maxBounds.x);
-				newPosition.y = Mathf.Clamp(newPosition.y, minBounds.y, maxBounds.y);
-				newPosition.z = Mathf.Clamp(newPosition.z, minBounds.z, maxBounds.z);
-
-				// Apply the clamped position
-				transform.position = newPosition;
-			}
-		}
-	}
-
-	void HandleTouchRotation()
-	{
-		// Use two fingers to rotate the camera
-		if (Input.touchCount == 2)
-		{
-			Touch touchOne = Input.GetTouch(0);
-			Touch touchTwo = Input.GetTouch(1);
-
-			Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
-			Vector2 touchTwoPrevPos = touchTwo.position - touchTwo.deltaPosition;
-
-			float prevMagnitude = (touchOnePrevPos - touchTwoPrevPos).magnitude;
-			float currentMagnitude = (touchOne.position - touchTwo.position).magnitude;
-			float difference = currentMagnitude - prevMagnitude;
-
-			if (Mathf.Abs(difference) > 0.01f) // Check if the fingers are moving closer or further away from each other
-			{
-				transform.position += transform.forward * difference * verticalSpeed * Time.deltaTime;
-			}
-			else // Rotate camera based on the average movement of the two touches
-			{
-				Vector2 midPointPrev = (touchOnePrevPos + touchTwoPrevPos) / 2;
-				Vector2 midPointCurrent = (touchOne.position + touchTwo.position) / 2;
-				Vector2 direction = midPointCurrent - midPointPrev;
-
-				transform.rotation *= Quaternion.Euler(-direction.y * rotateSpeed * Time.deltaTime, direction.x * rotateSpeed * Time.deltaTime, 0f);
-				transform.eulerAngles = new Vector3(transform.eulerAngles.x, transform.eulerAngles.y, 0f);
-			}
-		}
-	}
-
 	void HandleJoystickMovement()
 	{
 		// Get input from the movement joystick
 		float horizontalInput = movementJoystick.Horizontal;
 		float verticalInput = movementJoystick.Vertical;
 
-		Vector3 moveDirection = new Vector3(horizontalInput, 0f, verticalInput).normalized;
+		Vector3 moveDirection = new Vector3(horizontalInput, 0f, verticalInput)/*.normalized*/;
 		Vector3 movement = moveDirection * moveSpeed * Time.deltaTime;
 
 		Vector3 newPosition = transform.position + transform.right * movement.x + transform.forward * movement.z;

@@ -1,14 +1,13 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static System.Net.Mime.MediaTypeNames;
 
 public class AOEffectCanvasManager : MonoBehaviour
 {
+	public AOEffectManager manager => AOEffectManager.main;
+
 	[Header("AOEffectCanvasManager")]
-	public AOEffectManager manager;
 	public float gameInfoTextShowTime = 8;
 
     [Header("IntroUI")]
@@ -45,12 +44,17 @@ public class AOEffectCanvasManager : MonoBehaviour
 		registerToGameButton.onClick.AddListener(RegisterToGame);
 		openMovePadButton.onClick.AddListener(OpenMovePad);
 		closeMovePadButton.onClick.AddListener(CloseMovePad);
-    }
+
+		if(AOSManager.main == null)
+		{
+			SoundManager.main.PlayGameAudio();
+		}
+	}
 
 	private void Update()
 	{
-		registerToGameButton.gameObject.SetActive(AOEffectManager.main.gameState.GameMode == GameMode.Waiting && AOEffectManager.main.LocalPlayerExists && !AOEffectManager.main.LocalPlayerIsRegistered && !waitForRegistration);
-		movePadPanel.SetActive(AOEffectManager.main.gameState.GameMode == GameMode.Playing && AOEffectManager.main.LocalPlayerIsRegistered);
+		registerToGameButton.gameObject.SetActive(manager.gameState.GameMode == GameMode.Waiting && manager.LocalPlayerExists && !manager.LocalPlayerIsRegistered && !waitForRegistration);
+		movePadPanel.SetActive(manager.gameState.GameMode == GameMode.Playing && manager.LocalPlayerIsRegistered);
 	}
 
 	public void UpdateTimerText(float time)
@@ -125,6 +129,7 @@ public class AOEffectCanvasManager : MonoBehaviour
 		if (state == AOSState.LoggedIn)
 		{
 			ShowIntroPanel();
+			SoundManager.main.PlayGameAudio();
 		}
 		else
 		{

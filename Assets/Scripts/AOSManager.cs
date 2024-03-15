@@ -49,8 +49,7 @@ public class AOSManager : MonoBehaviour
     public TMP_Text consoleText;
     public TMP_InputField consoleInputField;
 	public ScrollRect scrollRect;
-    public Button showConsoleButton;
-    public Button hideConsoleButton;
+    public Button toggleConsoleButton;
     public Button clearConsoleButton;
     public Button logoutButton;
 
@@ -78,6 +77,10 @@ public class AOSManager : MonoBehaviour
 	private Action currentCallback;
 	private string currentCatchValue;
 
+	private bool consoleOn = false;
+
+	private bool messageSentFromInput = false;
+
 	void Awake()
 	{
 		if (main == null)
@@ -102,8 +105,7 @@ public class AOSManager : MonoBehaviour
 		loginButton.onClick.AddListener(() => Login());
 		walletFilePickerButton.onClick.AddListener(() => OpenWalletBrowser());
 
-		showConsoleButton.onClick.AddListener(() => console.SetActive(true));
-		hideConsoleButton.onClick.AddListener(() => console.SetActive(false));
+		toggleConsoleButton.onClick.AddListener(() => ToggleConsole(!consoleOn));
 		clearConsoleButton.onClick.AddListener(() => ClearShell());
 		logoutButton.onClick.AddListener(() => Logout());
 
@@ -111,9 +113,11 @@ public class AOSManager : MonoBehaviour
 		noButton.onClick.AddListener(() => { shell.RunCommand("n"); updatePopup.SetActive(false); waitAndStartCoroutine = StartCoroutine(WaitAndFinalizeLogin()); });
 
         StartShell();
+
+		SoundManager.main.PlayLoginAudio();
 	}
 
-    void Update()
+	void Update()
     {
         if(shell != null)
         {
@@ -216,6 +220,7 @@ public class AOSManager : MonoBehaviour
 
     public void Logout()
     {
+		ToggleConsole(false);
 		StopAllCoroutines();
 		ClearShell();
 		RestartShell();
@@ -232,6 +237,13 @@ public class AOSManager : MonoBehaviour
 	public void RunCommand(string command)
 	{
 		shell.RunCommand(command);
+	}
+
+	protected void ToggleConsole(bool isVisible)
+	{
+		consoleOn = isVisible; 
+		console.SetActive(consoleOn); 
+		clearConsoleButton.gameObject.SetActive(consoleOn);
 	}
 
 	protected void LogLine(string line)
@@ -318,6 +330,7 @@ public class AOSManager : MonoBehaviour
 	{
 		if (!string.IsNullOrEmpty(consoleInputField.text))
 		{
+			messageSentFromInput = true;
 			shell.RunCommand(consoleInputField.text);
 			commandsHistory.Add(consoleInputField.text);
 			commandsHistoryIndex = commandsHistory.Count;
@@ -353,7 +366,12 @@ public class AOSManager : MonoBehaviour
 			}
 
 			newLines.Clear();
-			StartCoroutine(ScrollDown());
+
+			if(messageSentFromInput)
+			{
+				messageSentFromInput = false;
+				StartCoroutine(ScrollDown());
+			}
 		}
 	}
 
@@ -371,6 +389,7 @@ public class AOSManager : MonoBehaviour
 				loginPanel.SetActive(true);
 				loadingPanel.SetActive(false);
 				mainPanel.SetActive(false);
+				SoundManager.main.PlayLoginAudio();
 				break;
 			case AOSState.Loading:
 				loginPanel.SetActive(false);

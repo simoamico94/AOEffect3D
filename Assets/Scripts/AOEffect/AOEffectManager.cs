@@ -26,7 +26,7 @@ public class AOEffectManager : MonoBehaviour
 	public static AOEffectManager main { get; private set; }
 
 	public bool LocalPlayerExists => AOSManager.main != null && !string.IsNullOrEmpty(AOSManager.main.processName);
-	public bool LocalPlayerIsRegistered => !registered && AOSManager.main != null && !string.IsNullOrEmpty(AOSManager.main.processName) && gameState.players != null && gameState.players.Count > 0 && gameState.players.Exists(p => p.isLocalPlayer);
+	public bool LocalPlayerIsRegistered => registered || (AOSManager.main != null && !string.IsNullOrEmpty(AOSManager.main.processName) && gameState.players != null && gameState.players.Count > 0 && gameState.players.Exists(p => p.isLocalPlayer));
 
 	[Header("AOEffectManager")]
 	public GameState gameState;
@@ -82,13 +82,28 @@ public class AOEffectManager : MonoBehaviour
 	{
 		if(gameState.GameMode != GameMode.None && AOSManager.main != null && doTick)
 		{
-			if(elapsedTickTime > tickTime)
+			if(AOSManager.main != null && doTick)
 			{
-				AOSManager.main.RunCommand("Send({ Target = \"" + gameProcessID + "\", Action = \"Tick\"})");
-				elapsedTickTime = 0;
+				if(elapsedTickTime > tickTime)
+				{
+					AOSManager.main.RunCommand("Send({ Target = \"" + gameProcessID + "\", Action = \"Tick\"})");
+					elapsedTickTime = 0;
+				}
+
+				elapsedTickTime += Time.deltaTime;
 			}
 
-			elapsedTickTime += Time.deltaTime;
+			if(gameState.TimeRemaining != 0)
+			{
+				gameState.TimeRemaining -= Time.deltaTime;
+
+				if(gameState.TimeRemaining < 0)
+				{ 
+					gameState.TimeRemaining = 0;
+				}
+
+				canvasManager.UpdateTimerText(gameState.TimeRemaining);
+			}
 		}
 	}
 
@@ -202,6 +217,7 @@ public class AOEffectManager : MonoBehaviour
 		}
 		else
 		{
+			Debug.Log("Registered!");
 			registered = true;
 			registrationCallback.Invoke(true);
 		}
