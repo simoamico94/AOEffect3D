@@ -387,10 +387,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 980563252737512876, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2280048993730577072, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -431,17 +427,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2360668846697531557, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 8461885968675805502, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
       propertyPath: m_Name
       value: AOSManager
-      objectReference: {fileID: 0}
-    - target: {fileID: 8461885968675805502, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -974,9 +962,17 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6203946731397820034, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6844763887139479597, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
       propertyPath: m_MatchWidthOrHeight
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6944767553157154624, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
+      propertyPath: m_Sprite
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7566305394833221939, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
       propertyPath: m_SizeDelta.x

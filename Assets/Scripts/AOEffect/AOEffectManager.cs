@@ -25,8 +25,8 @@ public class AOEffectManager : MonoBehaviour
 {
 	public static AOEffectManager main { get; private set; }
 
-	public bool LocalPlayerExists => AOSManager.main != null && !string.IsNullOrEmpty(AOSManager.main.processName);
-	public bool LocalPlayerIsRegistered => registered || (AOSManager.main != null && !string.IsNullOrEmpty(AOSManager.main.processName) && gameState.players != null && gameState.players.Count > 0 && gameState.players.Exists(p => p.isLocalPlayer));
+	public bool LocalPlayerExists => AOSManager.main != null && !string.IsNullOrEmpty(AOSManager.main.processID);
+	public bool LocalPlayerIsRegistered => registered || (AOSManager.main != null && !string.IsNullOrEmpty(AOSManager.main.processID) && gameState.players != null && gameState.players.Count > 0 && gameState.players.Exists(p => p.isLocalPlayer));
 
 	[Header("AOEffectManager")]
 	public GameState gameState;
@@ -293,7 +293,7 @@ public class AOEffectManager : MonoBehaviour
 						if (player == null)
 						{
 							player = Instantiate(playerPrefab, this.transform);
-							if(AOSManager.main != null && playerId == AOSManager.main.processName)
+							if(AOSManager.main != null && playerId == AOSManager.main.processID)
 							{
 								player.isLocalPlayer = true;
 							}

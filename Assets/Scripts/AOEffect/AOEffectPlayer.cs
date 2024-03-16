@@ -96,18 +96,18 @@ public class AOEffectPlayer : MonoBehaviour
 	[ContextMenu("Shoot")]
 	public void DebugShoot()
 	{
-		StartCoroutine(Shoot(debugTarget));
+		StartCoroutine(Shoot(debugTarget, debugTarget));
 	}
 
 	public void ShootTarget(AOEffectPlayer target)
 	{
-		StartCoroutine(Shoot(target.modelTarget));
+		StartCoroutine(Shoot(target.transform, target.modelTarget));
 	}
 
-	IEnumerator Shoot(Transform target)
+	IEnumerator Shoot(Transform lookAtTarget, Transform moveTarget)
 	{
 		animator.SetTrigger("Shoot");
-		transform.LookAt(target);
+		transform.LookAt(lookAtTarget);
 		shooting = true;
 
 		yield return new WaitForSeconds(1.1f);
@@ -116,12 +116,12 @@ public class AOEffectPlayer : MonoBehaviour
 
 		for(int i = 0; i < 6; i++)
 		{
-			StartCoroutine(MoveTowardsTarget(leftSpawnProj.position, target, 0.3f));
+			StartCoroutine(MoveTowardsTarget(leftSpawnProj.position, moveTarget, 0.3f));
 
 			yield return null;
 			yield return null;
 
-			StartCoroutine(MoveTowardsTarget(rightSpawnProj.position, target, 0.3f));
+			StartCoroutine(MoveTowardsTarget(rightSpawnProj.position, moveTarget, 0.3f));
 
 			yield return new WaitForSeconds(0.08f);
 

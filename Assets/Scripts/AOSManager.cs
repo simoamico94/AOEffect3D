@@ -19,13 +19,13 @@ public class AOSManager : MonoBehaviour
 	public static AOSManager main { get; private set; }
 
 	[Header("General")]
-	public bool loadBlueprints;
+	public EditVariablePopup editVariablePopup;
     public bool userFriendlyLogs;
 	public float loginTimeout;
 	public bool useColorsInConsole;
 	public int maxConsoleLines;
 
-    [SerializeField] private AOSState state;
+	[SerializeField] private AOSState state;
 	public AOSState State
 	{
 		get { return state; }
@@ -39,9 +39,10 @@ public class AOSManager : MonoBehaviour
 	public TMP_InputField usernameInputField;
 	public TMP_InputField walletLocationInputField;
 	public Button walletFilePickerButton;
-	public Toggle loadBlueprintsToggle;
 	public Button loginButton;
 	public TMP_Text errorText;
+	public Toggle loadableBlueprintTogglePrefab;
+	public RectTransform loadableBlueprintParent;
 
 	[Header("Console UI")]
     public GameObject mainPanel;
@@ -52,6 +53,7 @@ public class AOSManager : MonoBehaviour
     public Button toggleConsoleButton;
     public Button clearConsoleButton;
     public Button logoutButton;
+    public TMP_Text processIDText;
 
 	[Header("UpdatePopupUI")]
 	public GameObject updatePopup;
@@ -67,12 +69,14 @@ public class AOSManager : MonoBehaviour
 	private List<string> commandsHistory = new List<string>();
 	private int commandsHistoryIndex = 0;
 
+	private Dictionary<string,Toggle> loadableBlueprints = new Dictionary<string, Toggle>();
+
 	[Header("Debug")]
 	public bool debug;
 	public bool logLines;
 	[SerializeField] private List<string> lineBuffer = new List<string>();
 
-	public string processName;
+	public string processID;
 
 	private Action currentCallback;
 	private string currentCatchValue;
@@ -86,22 +90,18 @@ public class AOSManager : MonoBehaviour
 		if (main == null)
 		{
 			main = this;
-			DontDestroyOnLoad(gameObject); // Optional: Keep the instance alive across scenes.
+			DontDestroyOnLoad(gameObject); 
 		}
 		else
 		{
-			Destroy(gameObject); // Destroy if a duplicate exists.
+			Destroy(gameObject); 
 		}
 	}
 
 	void Start()
     {
-		// Example Lua data
-		//string luaData = "{TimeRemaining = 1183029,GameMode = \"Playing\", Players = {kA690iTy4O_Bk-NJtzTknuVpk1E-Fw3LHribdLO3mgs = {y = 22,x = 38,energy = 0,health = 100 }, IFFDYAq1dldTGljfjdd7GFf9sKvrOWwi0y59XzPolQA = {    y = 21,     x = 23,    energy = 0,    health = 100    }  } }";
+		FileBrowser.SetFilters(true, new FileBrowser.Filter("Wallet", ".json"));
 
-		FileBrowser.SetFilters(true, new FileBrowser.Filter("Wallet", ".json")/*, new FileBrowser.Filter("Lua files", ".lua")*/);
-
-		loadBlueprintsToggle.onValueChanged.AddListener((bool value) => loadBlueprints = value);
 		loginButton.onClick.AddListener(() => Login());
 		walletFilePickerButton.onClick.AddListener(() => OpenWalletBrowser());
 
@@ -115,6 +115,8 @@ public class AOSManager : MonoBehaviour
         StartShell();
 
 		SoundManager.main.PlayLoginAudio();
+
+		GetLoadableBlueprints();
 	}
 
 	void Update()
@@ -224,6 +226,10 @@ public class AOSManager : MonoBehaviour
 		StopAllCoroutines();
 		ClearShell();
 		RestartShell();
+
+		processID = "";
+		processIDText.text = "";
+
 		State = AOSState.LoggedOut;
 	}
 
@@ -244,6 +250,11 @@ public class AOSManager : MonoBehaviour
 		consoleOn = isVisible; 
 		console.SetActive(consoleOn); 
 		clearConsoleButton.gameObject.SetActive(consoleOn);
+
+		if(isVisible)
+		{
+			StartCoroutine(ScrollDown());
+		}
 	}
 
 	protected void LogLine(string line)
@@ -282,8 +293,9 @@ public class AOSManager : MonoBehaviour
 
 		if (line.StartsWith("aos process: "))
 		{
-			processName = line.Replace("aos process:", "").Trim();
-			evaluatedLine = "Welcome " + processName;
+			processID = line.Replace("aos process:", "").Trim();
+			processIDText.text = "ProcessID: " + processID;
+			evaluatedLine = "Welcome " + processID;
 
 			waitAndStartCoroutine = StartCoroutine(WaitAndFinalizeLogin());
 		}
@@ -429,7 +441,7 @@ public class AOSManager : MonoBehaviour
 
 			State = AOSState.LoggedIn;
 
-			if (loadBlueprints)
+			if (loadableBlueprints != null && loadableBlueprints.Count > 0)
 			{
 				StartCoroutine(LoadBlueprints());
 			}
@@ -448,11 +460,20 @@ public class AOSManager : MonoBehaviour
 		Login();
 	}
 
-	protected IEnumerator LoadBlueprints()
-    {
+	public void GetLoadableBlueprints()
+	{
 		string directoryPath = Application.dataPath + "/StreamingAssets";
 
-		// Check if the directory exists
+		if(loadableBlueprints != null && loadableBlueprints.Count > 0)
+		{
+			foreach(KeyValuePair<string, Toggle> b in loadableBlueprints)
+			{
+				Destroy(b.Value.gameObject);
+			}
+
+			loadableBlueprints.Clear();
+		}
+
 		if (Directory.Exists(directoryPath))
 		{
 			// Get all files in the directory
@@ -466,6 +487,32 @@ public class AOSManager : MonoBehaviour
 				{
 					// Get the name of the file
 					string fileName = Path.GetFileName(file);
+					Debug.Log("Loadable lua file found: " + fileName);
+
+					Toggle lb = Instantiate(loadableBlueprintTogglePrefab, loadableBlueprintParent);
+					lb.GetComponentInChildren<TMP_Text>(true).text = fileName;
+					loadableBlueprints.Add(file, lb);
+				}
+			}
+		}
+	}
+
+	protected IEnumerator LoadBlueprints()
+    {
+		string directoryPath = Application.dataPath + "/StreamingAssets";
+
+		// Check if the directory exists
+		if (Directory.Exists(directoryPath))
+		{
+			// Get all files in the directory
+			string[] files = Directory.GetFiles(directoryPath);
+
+			foreach (KeyValuePair<string, Toggle> b in loadableBlueprints)
+			{
+				if(b.Value.isOn)
+				{
+					// Get the name of the file
+					string fileName = Path.GetFileName(b.Key);
 					Debug.Log("Loading lua file found: " + fileName);
 
 					shell.RunCommand(".load " + fileName);

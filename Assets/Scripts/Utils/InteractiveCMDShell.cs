@@ -1,6 +1,6 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class InteractiveCMDShell
@@ -14,9 +14,28 @@ public class InteractiveCMDShell
 	List<string> lines = new List<string>();
 	bool m_Running = false;
 
+//#if UNITY_STANDALONE_WINDOWS || UNITY_EDITOR_WIN
+//	string shell = "Cmd.exe";
+//#elif UNITY_EDITOR_LINUX || UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_STANDALONE_WIN
+//	string shell = "/bin/bash";
+//#endif
 
 	public InteractiveCMDShell() {
-		startInfo = new System.Diagnostics.ProcessStartInfo("Cmd.exe");
+
+		string shell;
+
+		// Determine the shell based on the operating system
+		if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+		{
+			shell = "cmd.exe";
+		}
+		else // Assume Bash for Linux and macOS
+		{
+			shell = "/bin/bash";
+		}
+
+		Debug.LogError("Opening " + shell);
+		startInfo = new System.Diagnostics.ProcessStartInfo(shell);
 		//startInfo.WorkingDirectory = "C:\\Windows\\System32\\";
 		startInfo.WorkingDirectory = Application.dataPath + "/StreamingAssets";
 		Debug.Log("Opening cmd in " +  startInfo.WorkingDirectory);
