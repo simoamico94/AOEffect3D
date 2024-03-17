@@ -30,7 +30,7 @@ public class AOEffectCanvasManager : MonoBehaviour
 	[SerializeField] private Button closeMovePadButton;
 	[SerializeField] private TMP_Text gameInfoText;
 
-	private bool waitForRegistration = false;
+	private bool waitForAnswer = false;
 
 	private Coroutine gameInfoTextClearCoroutine;
 
@@ -53,17 +53,18 @@ public class AOEffectCanvasManager : MonoBehaviour
 
 	private void Update()
 	{
-		registerToGameButton.gameObject.SetActive(manager.gameState.GameMode == GameMode.Waiting && manager.LocalPlayerExists && !manager.LocalPlayerIsRegistered && !waitForRegistration);
-		movePadPanel.SetActive(manager.gameState.GameMode == GameMode.Playing && manager.LocalPlayerIsRegistered);
+		//registerToGameButton.gameObject.SetActive(manager.gameState.GameMode == GameMode.Waiting && manager.LocalPlayerExists && !manager.LocalPlayerIsRegistered && !waitForRegistration);
+		registerToGameButton.gameObject.SetActive(manager.LocalPlayerExists && !waitForAnswer && manager.gameState.gameMode != GameMode.None && (manager.localPlayerState == AOEffectPlayerState.None || manager.localPlayerState == AOEffectPlayerState.Waiting));
+		movePadPanel.SetActive(manager.LocalPlayerExists && manager.gameState.gameMode == GameMode.Playing && manager.localPlayerState == AOEffectPlayerState.Playing);
 	}
 
 	public void UpdateTimerText(float time)
     {
-        if(manager.gameState.GameMode == GameMode.Playing)
+        if(manager.gameState.gameMode == GameMode.Playing)
         {
             infoText.text = $"Game will end in {Mathf.RoundToInt(time)} s";
 		}
-		else if (manager.gameState.GameMode == GameMode.Waiting)
+		else if (manager.gameState.gameMode == GameMode.Waiting)
         {
 			infoText.text = $"Next game in {Mathf.RoundToInt(time)} s";
 		}
@@ -110,8 +111,10 @@ public class AOEffectCanvasManager : MonoBehaviour
 
     public void ExitGame(string error = null)
     {
-        ShowIntroPanel();
-		waitForRegistration = false;
+		CloseMovePad();
+
+		ShowIntroPanel();
+		waitForAnswer = false;
 		SetGameInfoText("");
 
 		if (error != null)
@@ -168,13 +171,25 @@ public class AOEffectCanvasManager : MonoBehaviour
 
     private void RegisterToGame()
     {
-		waitForRegistration = true;
-		manager.RegisterToGame(RegistrationCallback);
+		waitForAnswer = true;
+
+		if(manager.localPlayerState == AOEffectPlayerState.None)
+		{
+			manager.RegisterToGame(RegistrationCallback, false);
+		}
+		else if(manager.localPlayerState == AOEffectPlayerState.Waiting)
+		{
+			manager.RegisterToGame(RegistrationCallback, true);
+		}
+		else
+		{
+			Debug.LogError("Should be already registered, but localPlayerState is " + manager.localPlayerState);
+		}
     }
 
 	private void RegistrationCallback(bool result)
 	{
-		waitForRegistration = false;
+		waitForAnswer = false;
 		if(result)
 		{
 			SetGameInfoText("Registration completed!");

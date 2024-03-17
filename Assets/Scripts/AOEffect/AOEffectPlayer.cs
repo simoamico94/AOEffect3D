@@ -3,15 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 [Serializable]
 public enum AOEffectPlayerState
 {
-    Nothing = 0,
+    None = 0,
     Waiting = 1,
-    Playing = 2,
-    Dead = 3
+	WaitingPaid = 2,
+    Playing = 3,
+    Dead = 4
 }
 
 [Serializable]
@@ -40,6 +40,7 @@ public class AOEffectPlayer : MonoBehaviour
 
 	[Header("Player Settings")]
 	public float speed = 1f;
+	public float delayInfoUpdate = 0f;
 
 	[Header("Model References")]
 	public Transform modelTarget;
@@ -67,6 +68,10 @@ public class AOEffectPlayer : MonoBehaviour
 
 	public Transform debugTarget;
 
+	private List<AOEffectPlayer> pendingTargetsToShoot = new List<AOEffectPlayer>();
+
+	private bool firstUpdate = true;
+
 	void Start()
     {
 		audioSource = GetComponent<AudioSource>();
@@ -83,10 +88,8 @@ public class AOEffectPlayer : MonoBehaviour
 				transform.position = Vector3.Lerp(startPosition, targetPosition, elapsedTime / moveTime);
 				elapsedTime += Time.deltaTime;
 			}
-			// Check if movement is complete
 			else
 			{
-				// Movement complete, reset elapsed time
 				reachTargetPos = false;
 				elapsedTime = 0f;
 			}
@@ -101,7 +104,14 @@ public class AOEffectPlayer : MonoBehaviour
 
 	public void ShootTarget(AOEffectPlayer target)
 	{
-		StartCoroutine(Shoot(target.transform, target.modelTarget));
+		if(shooting)
+		{
+			pendingTargetsToShoot.Add(target);
+		}
+		else
+		{
+			StartCoroutine(Shoot(target.transform, target.modelTarget));
+		}
 	}
 
 	IEnumerator Shoot(Transform lookAtTarget, Transform moveTarget)
@@ -110,7 +120,7 @@ public class AOEffectPlayer : MonoBehaviour
 		transform.LookAt(lookAtTarget);
 		shooting = true;
 
-		yield return new WaitForSeconds(1.1f);
+		yield return new WaitForSeconds(0.5f);
 
 		audioSource.Play();
 
@@ -129,30 +139,36 @@ public class AOEffectPlayer : MonoBehaviour
 
 		shooting = false;
 
-		if(transform.position != data.pos)
+		if(pendingTargetsToShoot != null && pendingTargetsToShoot.Count > 0)
 		{
-			transform.LookAt(data.pos);
+			ShootTarget(pendingTargetsToShoot[0]);
+			pendingTargetsToShoot.RemoveAt(0);
+		}
+		else
+		{
+			if(transform.position != data.pos)
+			{
+				transform.LookAt(data.pos);
+			}
 		}
 	}
 
 	IEnumerator MoveTowardsTarget(Vector3 spawnPos, Transform target, float duration)
 	{
 		Transform obj = Instantiate(projectilePrefab, spawnPos, Quaternion.identity).transform;
+		obj.parent = transform;
 
-		float elapsedTime = 0; // Track the elapsed time
+		float elapsedTime = 0; 
 
 		while (elapsedTime < duration)
 		{
-			// Move projectile towards the target
 			obj.position = Vector3.Lerp(spawnPos, target.position, elapsedTime / duration);
-			// Make the projectile look at the target
 			obj.LookAt(target);
 
 			elapsedTime += Time.deltaTime;
 			yield return null;
 		}
 
-		// Ensure the projectile is exactly at the target position when the loop is done
 		Destroy(obj.gameObject);
 	}
 
@@ -163,44 +179,43 @@ public class AOEffectPlayer : MonoBehaviour
             idText.text = newData.id;
         }
 
-        energyText.text = newData.energy.ToString();
-        healthText.text = newData.health.ToString();
-
-		if (newData.health <= 0)
+		if(newData.energy > data.energy)
 		{
-			State = AOEffectPlayerState.Dead;
+			StartCoroutine(DelayedUpdateState(newData, false));
 		}
 		else
 		{
-			if (data.pos != newData.pos)
-			{
-				if(!shooting)
-				{
-					transform.LookAt(newData.pos);
-				}
+			DelayedUpdateState(newData, true);
+		}
 
-				if(!hasMovedOnce)
-				{
+		if (data.pos != newData.pos)
+		{
+			if(!shooting)
+			{
+				transform.LookAt(newData.pos);
+			}
+
+			if(!hasMovedOnce)
+			{
+				transform.position = newData.pos;
+				hasMovedOnce = true;
+			}
+			else
+			{
+				float dist = Vector3.Distance(transform.position, newData.pos);
+				Debug.Log(dist);
+				if (dist > 1.5f) //Pacman effect -> teleport
+                {
 					transform.position = newData.pos;
-					hasMovedOnce = true;
+					reachTargetPos = false;
 				}
 				else
 				{
-					float dist = Vector3.Distance(transform.position, newData.pos);
-
-					if (dist > 5) //Pacman effect -> teleport
-                    {
-						transform.position = newData.pos;
-						reachTargetPos = false;
-					}
-					else
-					{
-						startPosition = transform.position;
-						targetPosition = newData.pos;
-						reachTargetPos = true;
-						elapsedTime = 0f;
-						moveTime = dist/speed;
-					}
+					startPosition = transform.position;
+					targetPosition = newData.pos;
+					reachTargetPos = true;
+					elapsedTime = 0f;
+					moveTime = dist/speed;
 				}
 			}
 		}
@@ -208,11 +223,24 @@ public class AOEffectPlayer : MonoBehaviour
 		data = newData;
 	}
 
+	private IEnumerator DelayedUpdateState(AOEffectPlayerData newData, bool delay)
+	{
+		if (delay && !firstUpdate)
+		{
+			yield return new WaitForSeconds(delayInfoUpdate);
+		}
+
+		firstUpdate = false;
+
+		energyText.text = newData.energy.ToString();
+		healthText.text = newData.health.ToString();
+	}
+
 	private void OnStateChanged()
     {
 		switch (state)
 		{
-			case AOEffectPlayerState.Nothing:
+			case AOEffectPlayerState.None:
 				break;
 			case AOEffectPlayerState.Waiting:
 				gameObject.SetActive(false);
@@ -221,10 +249,20 @@ public class AOEffectPlayer : MonoBehaviour
 				gameObject.SetActive(true);
 				break;
 			case AOEffectPlayerState.Dead:
-				gameObject.SetActive(false);
-				transform.position = Vector3.zero;
+				StartCoroutine(DelayedDestroy());
+				//transform.position = Vector3.zero;
 				hasMovedOnce = false;
 				break;
 		}
+	}
+
+	private IEnumerator DelayedDestroy()
+	{
+		yield return new WaitForSeconds(1);
+		animator.SetTrigger("Die");
+		yield return new WaitForSeconds(5);
+
+		AOEffectManager.main.RemovePlayer(this);
+		Destroy(gameObject);
 	}
 }

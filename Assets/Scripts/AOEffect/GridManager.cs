@@ -10,13 +10,15 @@ public class GridManager : MonoBehaviour
 
 	private GameObject[,] gridObjects; // Matrix to store the game objects in the grid
 
-	void Start()
+	public void CreateGrid(int gridX = 40, int gridZ = 40)
 	{
-		CreateGrid();
-	}
-	 
-	void CreateGrid()
-	{
+		DestroyAndClearGridObjects();
+
+		gridSizeX = gridX;
+		gridSizeZ = gridZ;
+
+		Debug.Log($"Creating new grid {gridSizeX}x{gridSizeZ}");
+
 		// Initialize the gridObjects matrix
 		gridObjects = new GameObject[gridSizeX, gridSizeZ];
 
@@ -31,6 +33,9 @@ public class GridManager : MonoBehaviour
 				// Instantiate the game object at the calculated position
 				GameObject obj = Instantiate(gridObjectPrefab, position, Quaternion.identity);
 				obj.transform.parent = transform;
+
+				obj.name = $"[{x+1},{z+1}]";
+
 				gridObjects[x, z] = obj; // Store the game object in the matrix
 
 				// Create a line renderer for the grid cell
@@ -63,8 +68,30 @@ public class GridManager : MonoBehaviour
 		}
 		else
 		{
-			Debug.LogError("Invalid grid position.");
+			Debug.LogError("Invalid grid position. " + x + " " + z);
 			return null;
+		}
+	}
+
+	public void DestroyAndClearGridObjects()
+	{
+		if (gridObjects != null)
+		{
+			int rows = gridObjects.GetLength(0);
+			int cols = gridObjects.GetLength(1);
+
+			for (int i = 0; i < rows; i++)
+			{
+				for (int j = 0; j < cols; j++)
+				{
+					GameObject obj = gridObjects[i, j];
+					if (obj != null)
+					{
+						Destroy(obj); // Destroy the GameObject
+						gridObjects[i, j] = null; // Clear the element in the matrix
+					}
+				}
+			}
 		}
 	}
 }

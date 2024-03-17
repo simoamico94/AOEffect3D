@@ -44,18 +44,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b75464be7664a8b4b867679398fe6c2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  localPlayerState: 0
   gameState:
-    TimeRemaining: 0
-    GameMode: 0
+    timeRemaining: 0
+    gameMode: 0
     players: []
+  AOEffectInfo:
+    height: 0
+    width: 0
+    maxEnergy: 0
+    energyPerSec: 0
+    range: 0
+    averageMaxStrengthHitsToKill: 0
+  playersAttacks: 0
   canvasManager: {fileID: 0}
   gridManager: {fileID: 0}
   playerPrefab: {fileID: 8655893691397391989, guid: 46adb291bacf40546918a6fae6d7bd4e, type: 3}
   gameProcessID: 
   pollGameData: 1
-  pollingIntervalDuringWaiting: 5
+  pollingIntervalDuringWaiting: 0
   pollingIntervalDuringGame: 0
   doTick: 1
-  tickTime: 1
+  tickTime: 5
+  optimizeTick: 0
   debugData: GxCjFNlapOKgFGhuNoT2bc7FY5FyXoLGXjTD6clXHcQ
-  logGameState: 0
+  logGameState: 1
+  waitAOEffectData: 1

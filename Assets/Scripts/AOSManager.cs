@@ -230,6 +230,8 @@ public class AOSManager : MonoBehaviour
 		processID = "";
 		processIDText.text = "";
 
+		GetLoadableBlueprints();
+
 		State = AOSState.LoggedOut;
 	}
 
@@ -551,15 +553,5 @@ public class AOSManager : MonoBehaviour
 		{
 			Debug.LogError("Nothing selected");
 		}	 
-	}
-
-	public IEnumerator RegisterAndPay()
-	{
-		yield return null;
-	}
-
-	public IEnumerator Pay()
-	{
-		yield return null;
 	}
 }

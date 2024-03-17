@@ -33,7 +33,7 @@ public class CameraController : MonoBehaviour
 
 	void Update()
 	{
-		if(AOEffectManager.main.gameState.GameMode == GameMode.Playing)
+		if(AOEffectManager.main.gameState.gameMode == GameMode.Playing)
 		{
 			maxBounds = new Vector3(AOEffectManager.main.gridManager.gridSizeX + 5, 10, AOEffectManager.main.gridManager.gridSizeZ + 5);
 

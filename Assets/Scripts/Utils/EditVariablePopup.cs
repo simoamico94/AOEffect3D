@@ -51,7 +51,7 @@ public class EditVariablePopup : MonoBehaviour
 			slider.minValue = minValue;
 			slider.maxValue = maxValue;
 			sliderMultiplier = sliderMult;
-			slider.value = float.Parse(value) * sliderMultiplier;
+			slider.value = float.Parse(value) / sliderMultiplier;
 			slider.gameObject.SetActive(true);
 			sliderValueText.text = "Current value: " + (slider.value * sliderMultiplier).ToString();
 		}

@@ -1928,6 +1928,7 @@ GameObject:
   - component: {fileID: 1108359622649948511}
   - component: {fileID: 4070540417598564456}
   - component: {fileID: 8128769768674052894}
+  - component: {fileID: 2094288067171917746}
   m_Layer: 5
   m_Name: InfoText
   m_TagString: Untagged
@@ -1985,17 +1986,25 @@ MonoBehaviour:
   m_text: 'How to use:
 
 
+    - Install AOS from <link="https://cookbook_ao.arweave.dev/welcome/getting-started.html"><color=#0083FF>AO
+    Cookbook</u></color></link>
+
     - The cmd will be opened from the AOEffect_Data/SharedAsset
-    folder. So this app has to be located in the disk where aos is installed
+    folder. So this app has to be located in the disk where AOS is installed
 
     -
-    If you have blueprints to load, put them in AOEffect_Data/SharedAsse folder.
+    If you have blueprints to load, put them in AOEffect_Data/SharedAsset folder.
     You can create new from "Customize Blueprints" and you can choose which to load
-    from "Choose Blueprints to Load". By default you will already find the general
-    AO blueprints.
+    upon login from "Choose Blueprints to Load". By default you will already find
+    the general <link="https://cookbook_ao.arweave.dev/guides/aos/blueprints/index.html"><color=#0083FF>AO
+    Blueprints</u></color></link>.
 
-    - AOEffect game camera controls: move with "WASD" and rotate
-    view by pressing right mouse button and pan
+    - AOEffect game camera controls: move with
+    "WASD" and rotate view by pressing right mouse button and pan
+
+    - If you login
+    in the same process you don''t need to load blueprint you have already loaded,
+    they will be already there
 
     - Press ESC to quit'
   m_isRightToLeft: 0
@@ -2066,6 +2075,18 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &2094288067171917746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2053202085872124861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6922ddfba7cb45649a337de1963bcf15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2360668846697531557
 GameObject:
   m_ObjectHideFlags: 0
@@ -3250,20 +3271,20 @@ MonoBehaviour:
   - {fileID: 6021616391638656576}
   - {fileID: 4815311555528072343}
   successPanel: {fileID: 8182815447466270836}
-  originalLuaFile: "-- AO EFFECT: Game Mechanics for AO Arena Game\r\n\r\n--STARTCUSTOMVARIABLES\r\n--
-    Game grid dimensions\r\nWidth = CUSTOMWIDTH -- Width of the grid\r\nHeight =
-    CUSTOMHEIGHT -- Height of the grid\r\nRange = CUSTOMRANGE -- The distance for
-    blast effect\r\n\r\n-- Player energy settings\r\nMaxEnergy = CUSTOMMAXENERGY
-    -- Maximum energy a player can have\r\nEnergyPerSec = CUSTOMENERGYPERSEC -- Energy
-    gained per second\r\n\r\n-- Attack settings\r\nAverageMaxStrengthHitsToKill =
-    CUSTOMAVERAGEMAXSTRENGTHTOKILL -- Average number of hits to eliminate a player\r\n--ENDCUSTOMVARIABLES\r\n\r\n--
+  originalLuaFile: "-- AO EFFECT: Game Mechanics for AO Arena Game\r\n\r\r\n-- Game
+    grid dimensions\r\nWidth = CUSTOMWIDTH -- Width of the grid\r\nHeight = CUSTOMHEIGHT
+    -- Height of the grid\r\nRange = 1 -- The distance for blast effect\r\n\r\n--
+    Player energy settings\r\nMaxEnergy = CUSTOMMAXENERGY -- Maximum energy a player
+    can have\r\nEnergyPerSec = CUSTOMENERGYPERSEC -- Energy gained per second\r\n\r\n--
+    Attack settings\r\nAverageMaxStrengthHitsToKill = CUSTOMAVERAGEMAXSTRENGTHTOKILL
+    -- Average number of hits to eliminate a player\r\n\r\nHealth = CUSTOMHEALTH\r\n\r\n--
     Initializes default player state\r\n-- @return Table representing player's initial
-    state\r\nfunction playerInitState()\r\n    return {\r\n        x = math.random(0,
-    Width),\r\n        y = math.random(0, Height),\r\n        health = 100,\r\n       
+    state\r\nfunction playerInitState()\r\n    return {\r\n        x = math.random(1,
+    Width),\r\n        y = math.random(1, Height),\r\n        health = Health,\r\n       
     energy = 0\r\n    }\r\nend\r\n\r\n-- Function to incrementally increase player's
     energy\r\n-- Called periodically to update player energy\r\nfunction onTick()\r\n   
-    if GameMode ~= \"Playing\" then return end  -- Only active during \"Playing\"
-    state\r\n\r\n    if LastTick == undefined then LastTick = Now end\r\n\r\n   
+    if GameMode ~= \"Playing\" then\r\n        return end  -- Only active during
+    \"Playing\" state\r\n\r\n    if LastTick == undefined then LastTick = Now end\r\n\r\n   
     local Elapsed = Now - LastTick\r\n    if Elapsed >= 1000 then  -- Actions performed
     every second\r\n        for player, state in pairs(Players) do\r\n           
     local newEnergy = math.floor(math.min(MaxEnergy, state.energy + (Elapsed * EnergyPerSec
@@ -3298,21 +3319,37 @@ MonoBehaviour:
     .. \"!\")\r\n\r\n    -- check if any player is within range and update their
     status\r\n    for target, state in pairs(Players) do\r\n        if target ~=
     player and inRange(x, y, state.x, state.y, Range) then\r\n            local newHealth
-    = state.health - damage\r\n            if newHealth <= 0 then\r\n               
-    eliminatePlayer(target, player)\r\n            else\r\n                Players[target].health
-    = newHealth\r\n                ao.send({Target = target, Action = \"Hit\", Damage
-    = tostring(damage), Health = tostring(newHealth)})\r\n                ao.send({Target
-    = player, Action = \"Successful-Hit\", Recipient = target, Damage = tostring(damage),
-    Health = tostring(newHealth)})\r\n            end\r\n        end\r\n    end\r\nend\r\n\r\n--
-    Helper function to check if a target is within range\r\n-- @param x1, y1: Coordinates
-    of the attacker\r\n-- @param x2, y2: Coordinates of the potential target\r\n--
-    @param range: Attack range\r\n-- @return Boolean indicating if the target is
-    within range\r\nfunction inRange(x1, y1, x2, y2, range)\r\n    return x2 >= (x1
-    - range) and x2 <= (x1 + range) and y2 >= (y1 - range) and y2 <= (y1 + range)\r\nend\r\n\r\n--
-    HANDLERS: Game state management for AO-Effect\r\n\r\n-- Handler for player movement\r\nHandlers.add(\"PlayerMove\",
+    = state.health - damage\r\n            CurrentAttacks = CurrentAttacks + 1\r\n           
+    LastPlayerAttacks[CurrentAttacks] =\r\n            {\r\n                Player
+    = player,\r\n                Target = target\r\n            }\r\n           
+    if newHealth <= 0 then\r\n                eliminatePlayer(target, player)\r\n           
+    else\r\n                Players[target].health = newHealth\r\n \r\n               
+    ao.send({Target = target, Action = \"Hit\", Damage = tostring(damage), Health
+    = tostring(newHealth)})\r\n                ao.send({Target = player, Action =
+    \"Successful-Hit\", Recipient = target, Damage = tostring(damage), Health = tostring(newHealth)})\r\n           
+    end\r\n        end\r\n    end\r\nend\r\n\r\n-- Helper function to check if a
+    target is within range\r\n-- @param x1, y1: Coordinates of the attacker\r\n--
+    @param x2, y2: Coordinates of the potential target\r\n-- @param range: Attack
+    range\r\n-- @return Boolean indicating if the target is within range\r\nfunction
+    inRange(x1, y1, x2, y2, range)\r\n    return x2 >= (x1 - range) and x2 <= (x1
+    + range) and y2 >= (y1 - range) and y2 <= (y1 + range)\r\nend\r\n\r\n-- HANDLERS:
+    Game state management for AO-Effect\r\n\r\n-- Handler for player movement\r\nHandlers.add(\"PlayerMove\",
     Handlers.utils.hasMatchingTag(\"Action\", \"PlayerMove\"), move)\r\n\r\n-- Handler
     for player attacks\r\nHandlers.add(\"PlayerAttack\", Handlers.utils.hasMatchingTag(\"Action\",
-    \"PlayerAttack\"), attack)"
+    \"PlayerAttack\"), attack)\r\n\r\n-- Retrieves the current AOEffect info.\r\nHandlers.add(\r\n   
+    \"GetAOEffectInfo\",\r\n    Handlers.utils.hasMatchingTag(\"Action\", \"GetAOEffectInfo\"),\r\n   
+    function (Msg)\r\n        local json = require(\"json\")\r\n        local AOEffectInfo
+    = json.encode({\r\n            Width = Width,\r\n            Height = Height,\r\n           
+    Range = Range,\r\n            MaxEnergy = MaxEnergy,\r\n            EnergyPerSec
+    = EnergyPerSec,\r\n            AverageMaxStrengthHitsToKill = AverageMaxStrengthHitsToKill\r\n           
+    })\r\n        ao.send({\r\n            Target = Msg.From,\r\n            Action
+    = \"AOEffectInfo\",\r\n            Data = AOEffectInfo})\r\n    end\r\n)\r\n\r\n--
+    Retrieves the current attacks that has been made in the game.\r\nHandlers.add(\r\n   
+    \"GetGameAttacksInfo\",\r\n    Handlers.utils.hasMatchingTag(\"Action\", \"GetGameAttacksInfo\"),\r\n   
+    function (Msg)\r\n        local json = require(\"json\")\r\n        local GameAttacksInfo
+    = json.encode({\r\n            LastPlayerAttacks = LastPlayerAttacks,\r\n           
+    })\r\n        ao.send({\r\n            Target = Msg.From,\r\n            Action
+    = \"GameAttacksInfo\",\r\n            Data = GameAttacksInfo})\r\n    end\r\n)"
 --- !u!1 &3844401641794183279
 GameObject:
   m_ObjectHideFlags: 0
@@ -4572,10 +4609,11 @@ MonoBehaviour:
     game states.\r\nPlayers = Players or {}\r\n-- Number of winners in the current
     game.\r\nWinners = 0\r\n-- Processes subscribed to game announcements.\r\nListeners
     = Listeners or {}\r\n\r\n\r\n-- Default player state initialization.\r\nPlayerInitState
-    = PlayerInitState or {}\r\n\r\n-- Sends a state change announcement to all registered
-    listeners.\r\n-- @param event: The event type or name.\r\n-- @param description:
-    Description of the event.\r\nfunction announce(event, description)\r\n    for
-    ix, address in pairs(Listeners) do\r\n        ao.send({\r\n            Target
+    = PlayerInitState or {}\r\n\r\n-- AOEffect utils\r\nLastPlayerAttacks = LastPlayerAttacks
+    or {}\r\nCurrentAttacks = 0\r\n\r\n-- Sends a state change announcement to all
+    registered listeners.\r\n-- @param event: The event type or name.\r\n-- @param
+    description: Description of the event.\r\nfunction announce(event, description)\r\n   
+    for ix, address in pairs(Listeners) do\r\n        ao.send({\r\n            Target
     = address,\r\n            Action = \"Announcement\",\r\n            Event = event,\r\n           
     Data = description\r\n        })\r\n    end\r\n    return print(Colors.gray ..
     \"Announcement: \" .. Colors.red .. event .. \" \" .. Colors.blue .. description
@@ -4589,16 +4627,16 @@ MonoBehaviour:
     Colors.blue .. tostring(qty) ..\r\n      Colors.gray .. ' tokens to ' ..\r\n     
     Colors.green .. recipient .. \" \" ..\r\n      Colors.blue .. reason .. Colors.reset\r\n   
     )\r\nend\r\n\r\n-- Starts the waiting period for players to become ready to play.\r\nfunction
-    startWaitingPeriod()\r\n    GameMode = \"Waiting\"\r\n    StateChangeTime = Now
-    + WaitTime\r\n    announce(\"Started-Waiting-Period\", \"The game is about to
-    begin! Send your token to take part.\")\r\n    print('Starting Waiting Period')\r\nend\r\n\r\n--
-    Starts the game if there are enough players.\r\nfunction startGamePeriod()\r\n   
-    local paidPlayers = 0\r\n    for player, hasPaid in pairs(Waiting) do\r\n       
-    if hasPaid then\r\n            paidPlayers = paidPlayers + 1\r\n        end\r\n   
-    end\r\n\r\n    if paidPlayers < MinimumPlayers then\r\n        announce(\"Not-Enough-Players\",
-    \"Not enough players registered! Restarting...\")\r\n        for player, hasPaid
-    in pairs(Waiting) do\r\n            if hasPaid then\r\n                Waiting[player]
-    = false\r\n                sendReward(player, tostring(PaymentQty) , \"Refund\")\r\n           
+    startWaitingPeriod()\r\n    LastPlayerAttacks = {}\r\n    CurrentAttacks = 0\r\n   
+    GameMode = \"Waiting\"\r\n    StateChangeTime = Now + WaitTime\r\n    announce(\"Started-Waiting-Period\",
+    \"The game is about to begin! Send your token to take part.\")\r\n    print('Starting
+    Waiting Period')\r\nend\r\n\r\n-- Starts the game if there are enough players.\r\nfunction
+    startGamePeriod()\r\n    local paidPlayers = 0\r\n    for player, hasPaid in
+    pairs(Waiting) do\r\n        if hasPaid then\r\n            paidPlayers = paidPlayers
+    + 1\r\n        end\r\n    end\r\n\r\n    if paidPlayers < MinimumPlayers then\r\n       
+    announce(\"Not-Enough-Players\", \"Not enough players registered! Restarting...\")\r\n       
+    for player, hasPaid in pairs(Waiting) do\r\n            if hasPaid then\r\n               
+    Waiting[player] = false\r\n                sendReward(player, PaymentQty, \"Refund\")\r\n           
     end\r\n        end\r\n        startWaitingPeriod()\r\n        return\r\n    end\r\n\r\n   
     LastTick = undefined\r\n    GameMode = \"Playing\"\r\n    StateChangeTime = Now
     + GameTime\r\n    for player, hasPaid in pairs(Waiting) do\r\n        if hasPaid
@@ -4610,7 +4648,7 @@ MonoBehaviour:
     Started....\")\r\nend\r\n\r\n-- Handles the elimination of a player from the
     game.\r\n-- @param eliminated: The player to be eliminated.\r\n-- @param eliminator:
     The player causing the elimination.\r\nfunction eliminatePlayer(eliminated, eliminator)\r\n   
-    sendReward(eliminator, tostring(PaymentQty), \"Eliminated-Player\")\r\n    Waiting[eliminated]
+    sendReward(eliminator, PaymentQty, \"Eliminated-Player\")\r\n    Waiting[eliminated]
     = false\r\n    Players[eliminated] = nil\r\n\r\n    ao.send({\r\n        Target
     = eliminated,\r\n        Action = \"Eliminated\",\r\n        Eliminator = eliminator\r\n   
     })\r\n\r\n    announce(\"Player-Eliminated\", eliminated .. \" was eliminated
@@ -4620,14 +4658,15 @@ MonoBehaviour:
     for tracking eliminations\r\n\r\n    if playerCount < MinimumPlayers then\r\n       
     endGame()\r\n    end\r\n\r\nend\r\n\r\n-- Ends the current game and starts a
     new one.\r\nfunction endGame()\r\n    print(\"Game Over\")\r\n\r\n    Winners
-    = 0\r\n    Winnings = BonusQty / Winners -- Calculating winnings per player\r\n\r\n   
-    for player, _ in pairs(Players) do\r\n        Winners = Winners + 1\r\n    end\r\n\r\n   
-    Winnings = BonusQty / Winners\r\n\r\n    for player, _ in pairs(Players) do\r\n       
-    -- addLog(\"EndGame\", \"Sending reward of:\".. Winnings + PaymentQty .. \"to
-    player: \" .. player) -- Useful for tracking rewards\r\n        sendReward(player,
-    Winnings + PaymentQty, \"Win\")\r\n        Waiting[player] = false\r\n    end\r\n\r\n   
-    Players = {}\r\n    announce(\"Game-Ended\", \"Congratulations! The game has
-    ended. Remaining players at conclusion: \" .. Winners .. \".\")\r\n    startWaitingPeriod()\r\nend\r\n\r\n--
+    = 0\r\n    Winnings = tonumber(BonusQty) / Winners -- Calculating winnings per
+    player\r\n\r\n    for player, _ in pairs(Players) do\r\n        Winners = Winners
+    + 1\r\n    end\r\n\r\n    Winnings = tonumber(BonusQty) / Winners\r\n\r\n   
+    for player, _ in pairs(Players) do\r\n        -- addLog(\"EndGame\", \"Sending
+    reward of:\".. Winnings + PaymentQty .. \"to player: \" .. player) -- Useful
+    for tracking rewards\r\n        sendReward(player, Winnings + tonumber(PaymentQty),
+    \"Win\")\r\n        Waiting[player] = false\r\n    end\r\n\r\n    Players = {}\r\n   
+    announce(\"Game-Ended\", \"Congratulations! The game has ended. Remaining players
+    at conclusion: \" .. Winners .. \".\")\r\n    startWaitingPeriod()\r\nend\r\n\r\n--
     Removes a listener from the listeners' list.\r\n-- @param listener: The listener
     to be removed.\r\nfunction removeListener(listener)\r\n    local idx = 0\r\n   
     for i, v in ipairs(Listeners) do\r\n        if v == listener then\r\n           
@@ -4645,40 +4684,40 @@ MonoBehaviour:
     for player deposits to participate in the next game.\r\nHandlers.add(\r\n   
     \"Transfer\",\r\n    function(Msg)\r\n        return\r\n            Msg.Action
     == \"Credit-Notice\" and\r\n            Msg.From == PaymentToken and\r\n           
-    tonumber(Msg.Quantity) >= PaymentQty and \"continue\"\r\n    end,\r\n    function(Msg)\r\n       
-    Waiting[Msg.Sender] = true\r\n        ao.send({\r\n            Target = Msg.Sender,\r\n           
-    Action = \"Payment-Received\"\r\n        })\r\n        announce(\"Player-Ready\",
-    Msg.Sender .. \" is ready to play!\")\r\n    end\r\n)\r\n\r\n-- Registers new
-    players for the next game and subscribes them for event info.\r\nHandlers.add(\r\n   
-    \"Register\",\r\n    Handlers.utils.hasMatchingTag(\"Action\", \"Register\"),\r\n   
-    function(Msg)\r\n        if Msg.Mode ~= \"Listen\" and Waiting[Msg.From] == undefined
-    then\r\n            Waiting[Msg.From] = false\r\n        end\r\n        removeListener(Msg.From)\r\n       
-    table.insert(Listeners, Msg.From)\r\n        ao.send({\r\n            Target
-    = Msg.From,\r\n            Action = \"Registered\"\r\n        })\r\n        announce(\"New
-    Player Registered\", Msg.From .. \" has joined in waiting.\")\r\n    end\r\n)\r\n\r\n--
-    Unregisters players and stops sending them event info.\r\nHandlers.add(\r\n   
-    \"Unregister\",\r\n    Handlers.utils.hasMatchingTag(\"Action\", \"Unregister\"),\r\n   
-    function(Msg)\r\n        removeListener(Msg.From)\r\n        ao.send({\r\n           
-    Target = Msg.From,\r\n            Action = \"Unregistered\"\r\n        })\r\n   
-    end\r\n)\r\n\r\n-- Adds bet amount to BonusQty\r\nHandlers.add(\r\n    \"AddBet\",\r\n   
-    Handlers.utils.hasMatchingTag(\"Reason\", \"AddBet\"),\r\n    function(Msg)\r\n       
-    BonusQty = BonusQty + tonumber(Msg.Tags.Quantity)\r\n        announce(\"Bet-Added\",
-    Msg.From .. \"has placed a bet. \" .. \"BonusQty amount increased by \" .. Msg.Tags.Quantity
-    .. \"!\")\r\n    end\r\n)\r\n\r\n-- Retrieves the current game state.\r\nHandlers.add(\r\n   
-    \"GetGameState\",\r\n    Handlers.utils.hasMatchingTag(\"Action\", \"GetGameState\"),\r\n   
-    function (Msg)\r\n        local json = require(\"json\")\r\n        local TimeRemaining
-    = StateChangeTime - Now\r\n        local GameState = json.encode({\r\n           
+    tonumber(Msg.Quantity) >= tonumber(PaymentQty) and \"continue\"\r\n    end,\r\n   
+    function(Msg)\r\n        Waiting[Msg.Sender] = true\r\n        ao.send({\r\n           
+    Target = Msg.Sender,\r\n            Action = \"Payment-Received\"\r\n       
+    })\r\n        announce(\"Player-Ready\", Msg.Sender .. \" is ready to play!\")\r\n   
+    end\r\n)\r\n\r\n-- Registers new players for the next game and subscribes them
+    for event info.\r\nHandlers.add(\r\n    \"Register\",\r\n    Handlers.utils.hasMatchingTag(\"Action\",
+    \"Register\"),\r\n    function(Msg)\r\n        if Msg.Mode ~= \"Listen\" and
+    Waiting[Msg.From] == undefined then\r\n            Waiting[Msg.From] = false\r\n       
+    end\r\n        removeListener(Msg.From)\r\n        table.insert(Listeners, Msg.From)\r\n       
+    ao.send({\r\n            Target = Msg.From,\r\n            Action = \"Registered\"\r\n       
+    })\r\n        announce(\"New Player Registered\", Msg.From .. \" has joined in
+    waiting.\")\r\n    end\r\n)\r\n\r\n-- Unregisters players and stops sending them
+    event info.\r\nHandlers.add(\r\n    \"Unregister\",\r\n    Handlers.utils.hasMatchingTag(\"Action\",
+    \"Unregister\"),\r\n    function(Msg)\r\n        removeListener(Msg.From)\r\n       
+    ao.send({\r\n            Target = Msg.From,\r\n            Action = \"Unregistered\"\r\n       
+    })\r\n    end\r\n)\r\n\r\n-- Adds bet amount to BonusQty\r\nHandlers.add(\r\n   
+    \"AddBet\",\r\n    Handlers.utils.hasMatchingTag(\"Reason\", \"AddBet\"),\r\n   
+    function(Msg)\r\n        BonusQty = tonumber(BonusQty) + tonumber(Msg.Tags.Quantity)\r\n       
+    announce(\"Bet-Added\", Msg.From .. \"has placed a bet. \" .. \"BonusQty amount
+    increased by \" .. Msg.Tags.Quantity .. \"!\")\r\n    end\r\n)\r\n\r\n-- Retrieves
+    the current game state.\r\nHandlers.add(\r\n    \"GetGameState\",\r\n    Handlers.utils.hasMatchingTag(\"Action\",
+    \"GetGameState\"),\r\n    function (Msg)\r\n        local json = require(\"json\")\r\n       
+    local TimeRemaining = StateChangeTime - Now\r\n        local GameState = json.encode({\r\n           
     GameMode = GameMode,\r\n            TimeRemaining = TimeRemaining,\r\n           
-    Players = Players,\r\n            })\r\n        ao.send({\r\n            Target
-    = Msg.From,\r\n            Action = \"GameState\",\r\n            Data = GameState})\r\n   
-    end\r\n)\r\n\r\n-- Alerts users regarding the time remaining in each game state.\r\nHandlers.add(\r\n   
-    \"AnnounceTick\",\r\n    Handlers.utils.hasMatchingTag(\"Action\", \"Tick\"),\r\n   
-    function (Msg)\r\n        local TimeRemaining = StateChangeTime - Now\r\n       
-    if GameMode == \"Waiting\" then\r\n            announce(\"Tick\", \"The game
-    will start in \" .. (TimeRemaining/1000) .. \" seconds.\")\r\n        elseif
-    GameMode == \"Playing\" then\r\n            announce(\"Tick\", \"The game will
-    end in \" .. (TimeRemaining/1000) .. \" seconds.\")\r\n        end\r\n    end\r\n)\r\n\r\n--
-    Sends tokens to players with no balance upon request\r\nHandlers.add(\r\n   
+    Players = Players,\r\n            WaitingPlayers = Waiting\r\n            })\r\n       
+    ao.send({\r\n            Target = Msg.From,\r\n            Action = \"GameState\",\r\n           
+    Data = GameState})\r\n    end\r\n)\r\n\r\n-- Alerts users regarding the time
+    remaining in each game state.\r\nHandlers.add(\r\n    \"AnnounceTick\",\r\n   
+    Handlers.utils.hasMatchingTag(\"Action\", \"Tick\"),\r\n    function (Msg)\r\n       
+    local TimeRemaining = StateChangeTime - Now\r\n        if GameMode == \"Waiting\"
+    then\r\n            announce(\"Tick\", \"The game will start in \" .. (TimeRemaining/1000)
+    .. \" seconds.\")\r\n        elseif GameMode == \"Playing\" then\r\n           
+    announce(\"Tick\", \"The game will end in \" .. (TimeRemaining/1000) .. \" seconds.\")\r\n       
+    end\r\n    end\r\n)\r\n\r\n-- Sends tokens to players with no balance upon request\r\nHandlers.add(\r\n   
     \"RequestTokens\",\r\n    Handlers.utils.hasMatchingTag(\"Action\", \"RequestTokens\"),\r\n   
     function (Msg)\r\n        print(\"Transfering Tokens: \" .. tostring(TransferQty))\r\n       
     ao.send({\r\n            Target = ao.id,\r\n            Action = \"Transfer\",\r\n           
@@ -8981,11 +9020,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5451498616689848997, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: maxValue
-      value: 1000
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 5451498616689848997, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: minValue
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451498616689848997, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
+      propertyPath: sliderMult
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 5451498616689848997, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: defaultValue
@@ -9056,9 +9099,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6584626255175655021}
     m_Modifications:
+    - target: {fileID: 249468982505413555, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
+      propertyPath: m_Padding.m_Left
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 249468982505413555, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
+      propertyPath: m_Padding.m_Right
+      value: 30
+      objectReference: {fileID: 0}
     - target: {fileID: 1189938912748616123, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_text
-      value: 'Max Possible Attack Range:'
+      value: 'Start Health:'
       objectReference: {fileID: 0}
     - target: {fileID: 1992652035036942173, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_Pivot.x
@@ -9086,7 +9137,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1992652035036942173, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 375.66998
+      value: 291.12
       objectReference: {fileID: 0}
     - target: {fileID: 1992652035036942173, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_SizeDelta.y
@@ -9150,11 +9201,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2380774953401268586, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 335.66998
+      value: 251.12
       objectReference: {fileID: 0}
     - target: {fileID: 2380774953401268586, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 187.83499
+      value: 145.56
       objectReference: {fileID: 0}
     - target: {fileID: 2380774953401268586, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -9170,7 +9221,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5005530853428316350, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 13.96
+      value: 41.87
       objectReference: {fileID: 0}
     - target: {fileID: 5005530853428316350, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_SizeDelta.y
@@ -9178,7 +9229,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5005530853428316350, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 328.69
+      value: 200.185
       objectReference: {fileID: 0}
     - target: {fileID: 5005530853428316350, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -9197,12 +9248,16 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5451498616689848997, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
+      propertyPath: sliderMult
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5451498616689848997, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: defaultValue
-      value: 1
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 5451498616689848997, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: textVariableName
-      value: CUSTOMRANGE
+      value: CUSTOMHEALTH
       objectReference: {fileID: 0}
     - target: {fileID: 7965773961727999631, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_AnchorMax.y
@@ -9214,7 +9269,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7965773961727999631, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 311.71
+      value: 139.25
       objectReference: {fileID: 0}
     - target: {fileID: 7965773961727999631, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_SizeDelta.y
@@ -9222,7 +9277,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7965773961727999631, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 155.855
+      value: 99.625
       objectReference: {fileID: 0}
     - target: {fileID: 7965773961727999631, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -9230,11 +9285,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8139038979410400716, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_text
-      value: 1
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 9169624954945612545, guid: 9b4b9dca13ba26e49b19be9906323271, type: 3}
       propertyPath: m_Name
-      value: CustomizableVariable_AttackRange
+      value: CustomizableVariable_StartHealth
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
