@@ -24,6 +24,7 @@ public class AOSManager : MonoBehaviour
 	public float loginTimeout;
 	public bool useColorsInConsole;
 	public int maxConsoleLines;
+	public Dictionary<string, Action<string>> consoleListeners = new Dictionary<string, Action<string>>();
 
 	[SerializeField] private AOSState state;
 	public AOSState State
@@ -43,6 +44,10 @@ public class AOSManager : MonoBehaviour
 	public TMP_Text errorText;
 	public Toggle loadableBlueprintTogglePrefab;
 	public RectTransform loadableBlueprintParent;
+
+	[Header("Loading UI")]
+	public Button backLoginButton;
+	public GameObject longLoadingText;
 
 	[Header("Console UI")]
     public GameObject mainPanel;
@@ -81,7 +86,7 @@ public class AOSManager : MonoBehaviour
 	private Action currentCallback;
 	private string currentCatchValue;
 
-	private bool consoleOn = false;
+	public bool consoleOn = false;
 
 	private bool messageSentFromInput = false;
 
@@ -108,6 +113,7 @@ public class AOSManager : MonoBehaviour
 		toggleConsoleButton.onClick.AddListener(() => ToggleConsole(!consoleOn));
 		clearConsoleButton.onClick.AddListener(() => ClearShell());
 		logoutButton.onClick.AddListener(() => Logout());
+		backLoginButton.onClick.AddListener(() => Logout());
 
 		yesButton.onClick.AddListener(() => { shell.RunCommand("y"); updatePopup.SetActive(false); ClearShell(); updating = true; StartCoroutine(WaitUpdateAndLogin()); });
 		noButton.onClick.AddListener(() => { shell.RunCommand("n"); updatePopup.SetActive(false); waitAndStartCoroutine = StartCoroutine(WaitAndFinalizeLogin()); });
@@ -232,14 +238,15 @@ public class AOSManager : MonoBehaviour
 
 		GetLoadableBlueprints();
 
+		consoleListeners.Clear();
+
 		State = AOSState.LoggedOut;
 	}
 
-	public void RunCommand(string command, Action callback, string catchValue)
+	public void RunCommand(string command, Action<string> callback, string catchValue)
 	{
 		shell.RunCommand(command);
-		currentCallback = callback;
-		currentCatchValue = catchValue;
+		consoleListeners.Add(catchValue, callback);
 	}
 
 	public void RunCommand(string command)
@@ -285,6 +292,25 @@ public class AOSManager : MonoBehaviour
 	protected string EvaulateLine(string line)
 	{
 		string evaluatedLine = "";
+
+		List<string> keysToRemove = new List<string>();
+
+		if (consoleListeners != null && consoleListeners.Count > 0)
+		{
+			foreach(string catchValue in consoleListeners.Keys)
+			{
+				if(line.Contains(catchValue))
+				{
+					consoleListeners[catchValue]?.Invoke(line);
+					keysToRemove.Add(catchValue);
+				}
+			}
+		}
+
+		foreach (string key in keysToRemove)
+		{
+			consoleListeners.Remove(key);
+		}
 
 		if (!string.IsNullOrEmpty(currentCatchValue) && line.Contains(currentCatchValue))
 		{
@@ -409,6 +435,7 @@ public class AOSManager : MonoBehaviour
 				loginPanel.SetActive(false);
 				loadingPanel.SetActive(true);
 				mainPanel.SetActive(false);
+				longLoadingText.SetActive(false);
 				break;
 			case AOSState.LoggedIn:
 				loginPanel.SetActive(false);
@@ -423,30 +450,35 @@ public class AOSManager : MonoBehaviour
 		string currentShellLine = ANSIConverter.ConvertANSIToTextMeshPro(shell.GetCurrentLine(), useColorsInConsole);
 		float timeElapsed = 0;
 
-		while (!currentShellLine.Contains(">") && timeElapsed < loginTimeout)
+		while (!currentShellLine.Contains(">"))
 		{
+			if(State != AOSState.Loading)
+			{
+				yield break;
+			}
+
 			currentShellLine = ANSIConverter.ConvertANSIToTextMeshPro(shell.GetCurrentLine(), useColorsInConsole);
 			timeElapsed += Time.deltaTime;
+
+			if (timeElapsed >= loginTimeout)
+			{
+				longLoadingText.SetActive(true);
+				//errorText.text += "Timed out, retry. If problems persist check if there are any AOS updates available through normal cmd";
+				//Logout();
+			}
+
 			yield return null;
 		}
 
-		if(timeElapsed >= loginTimeout)
+		Debug.Log(currentShellLine);
+
+		yield return new WaitForSeconds(0.5f);
+
+		State = AOSState.LoggedIn;
+
+		if (loadableBlueprints != null && loadableBlueprints.Count > 0)
 		{
-			errorText.text += "Timed out. Retry\nIf problems persist check if there are any AOS updates available through normal cmd";
-			Logout();
-		}
-		else
-		{
-			Debug.Log(currentShellLine);
-
-			yield return new WaitForSeconds(0.5f);
-
-			State = AOSState.LoggedIn;
-
-			if (loadableBlueprints != null && loadableBlueprints.Count > 0)
-			{
-				StartCoroutine(LoadBlueprints());
-			}
+			StartCoroutine(LoadBlueprints());
 		}
 	}
 

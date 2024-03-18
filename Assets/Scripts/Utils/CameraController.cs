@@ -8,9 +8,7 @@ public class CameraController : MonoBehaviour
 	[SerializeField] private float shiftMultiplier = 2f;
 
 	[Header("Mobile")]
-
 	[SerializeField] private GameObject joystickPanel;
-
 	[SerializeField] private Joystick movementJoystick;
 	[SerializeField] private Joystick rotationJoystick; 
 
@@ -33,6 +31,12 @@ public class CameraController : MonoBehaviour
 
 	void Update()
 	{
+		//Avoid to move camera while console is open
+		if(AOSManager.main != null && AOSManager.main.consoleOn)
+		{
+			return;
+		}
+
 		if(AOEffectManager.main.gameState.gameMode == GameMode.Playing)
 		{
 			maxBounds = new Vector3(AOEffectManager.main.gridManager.gridSizeX + 5, 10, AOEffectManager.main.gridManager.gridSizeZ + 5);

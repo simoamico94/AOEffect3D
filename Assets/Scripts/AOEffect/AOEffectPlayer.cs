@@ -30,7 +30,8 @@ public class AOEffectPlayer : MonoBehaviour
 	public AOEffectPlayerData data;
     public bool isLocalPlayer;
 	public GameObject marker;
-	
+	public int ranking;
+
 	[SerializeField] private AOEffectPlayerState state;
 	public AOEffectPlayerState State
 	{
@@ -48,12 +49,13 @@ public class AOEffectPlayer : MonoBehaviour
 	[SerializeField] private Transform leftSpawnProj;
 	[SerializeField] private Transform rightSpawnProj;
 	[SerializeField] private GameObject projectilePrefab;
+	public Transform cameraTarget;
 
 	[Header("UI")]
-    [SerializeField] private GameObject infoCanvas;
-	[SerializeField] private TMP_Text idText;
-	[SerializeField] private TMP_Text healthText;
-	[SerializeField] private TMP_Text energyText;
+    [SerializeField] private AOEffectPlayerInfoCanvas infoCanvas;
+
+	[Header("Debug")]
+	public Transform debugTarget;
 
 	private Vector3 startPosition;
 	private Vector3 targetPosition;
@@ -66,7 +68,6 @@ public class AOEffectPlayer : MonoBehaviour
 
 	private AudioSource audioSource;
 
-	public Transform debugTarget;
 
 	private List<AOEffectPlayer> pendingTargetsToShoot = new List<AOEffectPlayer>();
 
@@ -148,7 +149,8 @@ public class AOEffectPlayer : MonoBehaviour
 		{
 			if(transform.position != data.pos)
 			{
-				transform.LookAt(data.pos);
+				Debug.Log(Vector3.Distance(transform.position, data.pos));
+				//transform.LookAt(data.pos);
 			}
 		}
 	}
@@ -172,21 +174,17 @@ public class AOEffectPlayer : MonoBehaviour
 		Destroy(obj.gameObject);
 	}
 
+	public void UpdateRanking(int ranking)
+	{
+		this.ranking = ranking;
+		infoCanvas.SetRanking(ranking.ToString());
+	}
+
 	public void UpdateData(AOEffectPlayerData newData)
     {
-        if(!string.IsNullOrEmpty(idText.text))
-        {
-            idText.text = newData.id;
-        }
-
-		if(newData.energy > data.energy)
-		{
-			StartCoroutine(DelayedUpdateState(newData, false));
-		}
-		else
-		{
-			DelayedUpdateState(newData, true);
-		}
+		infoCanvas.SetID(newData.id);
+		infoCanvas.SetEnergy(newData.energy.ToString());
+		infoCanvas.SetHealth(newData.health.ToString());
 
 		if (data.pos != newData.pos)
 		{
@@ -223,19 +221,6 @@ public class AOEffectPlayer : MonoBehaviour
 		data = newData;
 	}
 
-	private IEnumerator DelayedUpdateState(AOEffectPlayerData newData, bool delay)
-	{
-		if (delay && !firstUpdate)
-		{
-			yield return new WaitForSeconds(delayInfoUpdate);
-		}
-
-		firstUpdate = false;
-
-		energyText.text = newData.energy.ToString();
-		healthText.text = newData.health.ToString();
-	}
-
 	private void OnStateChanged()
     {
 		switch (state)
@@ -249,6 +234,8 @@ public class AOEffectPlayer : MonoBehaviour
 				gameObject.SetActive(true);
 				break;
 			case AOEffectPlayerState.Dead:
+				data.health = 0;
+				infoCanvas.SetHealth("0");
 				StartCoroutine(DelayedDestroy());
 				//transform.position = Vector3.zero;
 				hasMovedOnce = false;
@@ -258,6 +245,7 @@ public class AOEffectPlayer : MonoBehaviour
 
 	private IEnumerator DelayedDestroy()
 	{
+
 		yield return new WaitForSeconds(1);
 		animator.SetTrigger("Die");
 		yield return new WaitForSeconds(5);

@@ -201,8 +201,8 @@ function endGame()
         Waiting[player] = false
     end
 
+    announce("Game-Ended", "Congratulations! The game has ended. Remaining players at conclusion: " .. Winners .. ". Players:" .. Players)
     Players = {}
-    announce("Game-Ended", "Congratulations! The game has ended. Remaining players at conclusion: " .. Winners .. ".")
     startWaitingPeriod()
 end
 

@@ -13,7 +13,7 @@ EnergyPerSec = 30 -- Energy gained per second
 -- Attack settings
 AverageMaxStrengthHitsToKill = 5 -- Average number of hits to eliminate a player
 
-Health = 200
+Health = 80
 
 -- Initializes default player state
 -- @return Table representing player's initial state

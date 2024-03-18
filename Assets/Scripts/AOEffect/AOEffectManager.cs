@@ -5,6 +5,9 @@ using SimpleJSON;
 using System;
 using UnityEngine.Networking;
 using System.Text;
+using System.Linq;
+using JetBrains.Annotations;
+using System.Security.Cryptography;
 
 [Serializable]
 public struct GameState
@@ -39,14 +42,16 @@ public class AOEffectManager : MonoBehaviour
 	public static AOEffectManager main { get; private set; }
 
 	public bool LocalPlayerExists => AOSManager.main != null && !string.IsNullOrEmpty(AOSManager.main.processID);
-
+	public bool WaitingExists => gameState.waitingPlayers != null && gameState.waitingPlayers.Count > 0;
 	public AOEffectPlayerState localPlayerState = AOEffectPlayerState.None;
+
+	public Action<GameMode,GameMode> OnGameModeChanged;
 
 	[Header("AOEffectManager")]
 	public GameState gameState;
 	public AOEffectInfo AOEffectInfo;
 	public int playersAttacks = 0;
-
+	
 	[Header("References")]
 	public AOEffectCanvasManager canvasManager;
 	public GridManager gridManager;
@@ -79,9 +84,6 @@ public class AOEffectManager : MonoBehaviour
 	public string debugData;
 	public bool logGameState;
 	public bool waitAOEffectData;
-
-	private Coroutine sendPostRequest;
-	private Coroutine regiterCoroutine;
 
 	private bool registered = false;
 
@@ -181,7 +183,7 @@ public class AOEffectManager : MonoBehaviour
 			float elapsedTime = 0;
 			float timeOut = 10;
 
-			Action callback = () => { done = true; };
+			Action<string> callback = (string message) => { done = true; };
 
 			AOSManager.main.RunCommand($"Game = \"{gameProcessID}\"", callback, "undefined");
 
@@ -209,13 +211,16 @@ public class AOEffectManager : MonoBehaviour
 		}
 	}
 
-	public void ExitGame()
+	public void ExitGame(string error = null)
 	{
 		StopAllCoroutines();
 
 		if(gameState.gameMode != GameMode.None)
 		{
+			GameMode old = gameState.gameMode;
 			gameState.gameMode = GameMode.None;
+			OnGameModeChanged?.Invoke(old, gameState.gameMode);
+
 			if(gameState.players != null && gameState.players.Count > 0)
 			{
 				foreach(AOEffectPlayer p in gameState.players)
@@ -238,12 +243,12 @@ public class AOEffectManager : MonoBehaviour
 		AOEffectInfo = null;
 		gameProcessID = "";
 
-		canvasManager.ExitGame();
+		canvasManager.ExitGame(error);
 	}
 
 	public void RegisterToGame(Action<bool> callback, bool onlyPay)
 	{
-		regiterCoroutine = StartCoroutine(RegisterToGameCoroutine(callback, onlyPay));
+		StartCoroutine(RegisterToGameCoroutine(callback, onlyPay));
 	}
 
 	public void UpdateLocalPlayerState()
@@ -317,9 +322,9 @@ public class AOEffectManager : MonoBehaviour
 		float elapsedTime = 0;
 		float timeOut = 10;
 
-		Action callback = () => { done = true; }; 
+		Action<string> callback = (string message) => { done = true; };
 
-		if(!onlyPay)
+		if (!onlyPay)
 		{
 			AOSManager.main.RunCommand($"Game = \"{gameProcessID}\"", callback, "undefined");
 			canvasManager.SetGameInfoText("Assigning Game variable..");
@@ -670,7 +675,7 @@ public class AOEffectManager : MonoBehaviour
 	{
         if (!result)
         {
-			canvasManager.ExitGame("Error while loading AOEffect Game state. Check game process ID or internet connection");
+			ExitGame("Error while loading AOEffect Game state. Check game process ID or internet connection");
 			return;
         }
 
@@ -713,11 +718,23 @@ public class AOEffectManager : MonoBehaviour
 
 				if (jsonNode["GameMode"] == "Playing")
 				{
+					GameMode oldGameMode = gameState.gameMode;
 					gameState.gameMode = GameMode.Playing;
+
+					if(oldGameMode != gameState.gameMode)
+					{
+						OnGameModeChanged?.Invoke(oldGameMode, gameState.gameMode);
+					}	 
 				}
 				else if(jsonNode["GameMode"] == "Waiting")
 				{
+					GameMode oldGameMode = gameState.gameMode;
 					gameState.gameMode = GameMode.Waiting;
+
+					if (oldGameMode != gameState.gameMode)
+					{
+						OnGameModeChanged?.Invoke(oldGameMode, gameState.gameMode);
+					}
 				}
 				else
 				{
@@ -773,10 +790,11 @@ public class AOEffectManager : MonoBehaviour
 					{
 						gameState.waitingPlayers.Remove(key);
 					}
+
+					canvasManager.UpdateWaitingPanel();
 				}
 
 				JSONNode playersNode = jsonNode["Players"];
-
 			
 				if(gameState.gameMode == GameMode.Playing)
 				{
@@ -830,6 +848,16 @@ public class AOEffectManager : MonoBehaviour
 					{
 						p.State = AOEffectPlayerState.Dead;
 					}
+					
+					gameState.players = gameState.players.OrderByDescending((p) => p.data.health).ToList();
+					int count = 1;
+					foreach (AOEffectPlayer player in gameState.players)
+					{
+						player.UpdateRanking(count);
+						count++;
+					}
+
+					canvasManager.UpdateLeaderboard();
 
 					if (pollGameData)
 					{
