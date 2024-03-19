@@ -81,6 +81,7 @@ public class AOEffectCanvasManager : MonoBehaviour
 		if(AOSManager.main == null)
 		{
 			SoundManager.main.PlayGameAudio();
+			ShowIntroPanel();
 		}
 
 		manager.OnGameModeChanged += OnGameModeChanged;

@@ -623,7 +623,6 @@ public class AOEffectManager : MonoBehaviour
 			Debug.LogWarning("Base AOEffect Game not supporting additional info");
 			gridManager.CreateGrid();
 			if(waitAOEffectData) StartCoroutine(SendPostRequest("GetGameState", UpdateGameState));
-			//canvasManager.ExitGame("Error while loading AOEffect Game state. Check game process ID or internet connection");
 			return;
 		}
 
@@ -715,8 +714,8 @@ public class AOEffectManager : MonoBehaviour
 		info.energyPerSec = jsonNode["EnergyPerSec"];
 		info.health = jsonNode["Health"];
 		info.averageMaxStrengthHitsToKill = jsonNode["AverageMaxStrengthHitsToKill"];
-		info.waitTime = jsonNode["WaitTime"].AsLong / 6000;
-		info.gameTime = jsonNode["GameTime"].AsLong / 6000;
+		info.waitTime = jsonNode["WaitTime"].AsLong / 60000;
+		info.gameTime = jsonNode["GameTime"].AsLong / 60000;
 		info.minimumPlayers = jsonNode["MinimumPlayers"];
 		info.paymentQty = jsonNode["PaymentQty"];
 		info.bonusQty = jsonNode["BonusQty"];

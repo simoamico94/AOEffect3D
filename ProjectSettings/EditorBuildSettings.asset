@@ -5,10 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/AOEffect.unity
     guid: 7f1aecc905bf6c14d9f85e6457eefb06
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/AOEffect_Android.unity
     guid: dd3a31b09a9d886498d0f9d375febaf5
   m_configObjects: {}
