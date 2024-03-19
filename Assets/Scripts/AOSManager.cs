@@ -449,7 +449,7 @@ public class AOSManager : MonoBehaviour
 		string currentShellLine = ANSIConverter.ConvertANSIToTextMeshPro(shell.GetCurrentLine(), useColorsInConsole);
 		float timeElapsed = 0;
 
-		while (!currentShellLine.Contains(">"))
+		while (!currentShellLine.Contains(">")) //Looking for "aos>" because it means I'm logged in correctly
 		{
 			if(State != AOSState.Loading)
 			{
@@ -461,6 +461,8 @@ public class AOSManager : MonoBehaviour
 
 			if (timeElapsed >= loginTimeout)
 			{
+				timeElapsed = 0;
+				RunCommand("Test = \"Test\""); //To handle bug that when you log in instead of "aos>" there is "undefined"
 				longLoadingText.SetActive(true);
 			}
 

@@ -438,6 +438,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4112365512054347439, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -15.000061
+      objectReference: {fileID: 0}
+    - target: {fileID: 5035445999355039646, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
+      propertyPath: logLines
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7132001428090311479, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -12.999939
+      objectReference: {fileID: 0}
     - target: {fileID: 8461885968675805502, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
       propertyPath: m_Name
       value: AOSManager
@@ -982,6 +994,10 @@ PrefabInstance:
       propertyPath: gridManager
       value: 
       objectReference: {fileID: 2143930469}
+    - target: {fileID: 3117437850488794184, guid: 186babdf7a22f49419bdb73c50bee6db, type: 3}
+      propertyPath: logGameState
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3117437850488794184, guid: 186babdf7a22f49419bdb73c50bee6db, type: 3}
       propertyPath: canvasManager
       value: 

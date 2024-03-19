@@ -1,3 +1,4 @@
+using SimpleJSON;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,6 +20,13 @@ public class AOEffectCanvasManager : MonoBehaviour
 	[SerializeField] private Button playGameButton;
 	[SerializeField] private TMP_InputField gameProcessInputField;
 	[SerializeField] private TMP_Text errorText;
+
+	[Header("Available Arenas")]
+	[SerializeField] private Button showAvailableArenasButton;
+	[SerializeField] private GameObject availableArenasPanel;
+	[SerializeField] private Transform availableArenasParentTransform;
+	[SerializeField] private AOEffectInfoPanel arenaInfoPrefab;
+	private List<AOEffectInfoPanel> availableArenasObjs = new List<AOEffectInfoPanel>();
 
 	[Header("GameUI")]
 	[SerializeField] private GameObject gamePanel;
@@ -63,6 +71,8 @@ public class AOEffectCanvasManager : MonoBehaviour
 		playGameButton.onClick.AddListener(OnPlayGameButtonClicked);
         exitGameButton.onClick.AddListener(() => manager.ExitGame());
 
+		showAvailableArenasButton.onClick.AddListener(() => availableArenasPanel.SetActive(true));
+
 		registerToGameButton.onClick.AddListener(RegisterToGame);
 		registerToGameButtonOldGame.onClick.AddListener(RegisterToGame);
 		openMovePadButton.onClick.AddListener(OpenMovePad);
@@ -78,6 +88,13 @@ public class AOEffectCanvasManager : MonoBehaviour
 
 	private void Update()
 	{
+		showAvailableArenasButton.gameObject.SetActive(manager.availableArenas != null && manager.availableArenas.Count > 0);
+
+		if(manager.availableArenas == null || manager.availableArenas.Count == 0)
+		{
+			availableArenasPanel.SetActive(false);
+		}
+
 		registerToGameButtonOldGame.gameObject.SetActive(!manager.waitingSupported && manager.LocalPlayerExists && !waitForAnswer && manager.gameState.gameMode != GameMode.None && (manager.localPlayerState == AOEffectPlayerState.None || manager.localPlayerState == AOEffectPlayerState.Waiting));
 		registerToGameButton.gameObject.SetActive(manager.waitingSupported && manager.LocalPlayerExists && !waitForAnswer && manager.gameState.gameMode != GameMode.None && (manager.localPlayerState == AOEffectPlayerState.None || manager.localPlayerState == AOEffectPlayerState.Waiting));
 		movePadPanel.SetActive(manager.LocalPlayerExists && manager.gameState.gameMode == GameMode.Playing && manager.localPlayerState == AOEffectPlayerState.Playing);
@@ -157,20 +174,21 @@ public class AOEffectCanvasManager : MonoBehaviour
 				AOSManager.main.consoleListeners.Remove("Eliminated");
 			}
 
-			if (eliminationState == 0)
-			{
-				winningContentText.text = "Congratulations, you won! :D";
-			}
-			else if(eliminationState == 1)
-			{
-				winningContentText.text = "Sorry, you lose! :(";
-			}
-			else
-			{
-				winningContentText.text = "";
-			}
+			//Not working as expected
+			//if (eliminationState == 0)
+			//{
+			//	winningContentText.text = "Congratulations, you won! :D";
+			//}
+			//else if(eliminationState == 1)
+			//{
+			//	winningContentText.text = "Sorry, you lose! :(";
+			//}
+			//else
+			//{
+			//	winningContentText.text = "";
+			//}
 
-			winningPanel.SetActive(true);
+			//winningPanel.SetActive(true);
 
 		}
 	}
@@ -179,6 +197,26 @@ public class AOEffectCanvasManager : MonoBehaviour
 	{
 		Debug.LogWarning("Eliminated");
 		eliminationState = 1;
+	}
+
+	public void UpdateAvailableArenas()
+	{
+		if(availableArenasObjs != null && availableArenasObjs.Count > 0)
+		{
+			foreach (AOEffectInfoPanel arena in availableArenasObjs)
+			{
+				Destroy(arena.gameObject);
+			}
+		}
+
+		availableArenasObjs = new List<AOEffectInfoPanel>();
+
+		foreach (AOEffectInfo arena in manager.availableArenas)
+		{
+			AOEffectInfoPanel panel = Instantiate(arenaInfoPrefab, availableArenasParentTransform);
+			panel.UpdateInfo(arena);
+			availableArenasObjs.Add(panel);
+		}
 	}
 
 	public void UpdateLeaderboard()
@@ -290,7 +328,9 @@ public class AOEffectCanvasManager : MonoBehaviour
 
 	public void ShowIntroPanel()
     {
-        introPanel.SetActive(true);
+		manager.GetAvailableArenas();
+
+		introPanel.SetActive(true);
 		gamePanel.SetActive(false);
 	}
 
@@ -298,9 +338,10 @@ public class AOEffectCanvasManager : MonoBehaviour
     {
 		introPanel.SetActive(false);
 		gamePanel.SetActive(true);
-    }
+		availableArenasPanel.SetActive(false);
+	}
 
-    public void HideAll()
+	public void HideAll()
     {
 		introPanel.SetActive(false);
 		gamePanel.SetActive(false);
@@ -324,6 +365,12 @@ public class AOEffectCanvasManager : MonoBehaviour
         {
 			errorText.text = "";
 		}
+	}
+
+	public void LoadAvailableArena(string gameID)
+	{
+		gameProcessInputField.text = gameID;
+		OnPlayGameButtonClicked();
 	}
 
 	private void OnAOSStateChanged(AOSState state)

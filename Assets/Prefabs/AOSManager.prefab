@@ -3340,11 +3340,13 @@ MonoBehaviour:
     \"GetAOEffectInfo\",\r\n    Handlers.utils.hasMatchingTag(\"Action\", \"GetAOEffectInfo\"),\r\n   
     function (Msg)\r\n        local json = require(\"json\")\r\n        local AOEffectInfo
     = json.encode({\r\n            Width = Width,\r\n            Height = Height,\r\n           
-    Range = Range,\r\n            MaxEnergy = MaxEnergy,\r\n            EnergyPerSec
-    = EnergyPerSec,\r\n            AverageMaxStrengthHitsToKill = AverageMaxStrengthHitsToKill\r\n           
-    })\r\n        ao.send({\r\n            Target = Msg.From,\r\n            Action
-    = \"AOEffectInfo\",\r\n            Data = AOEffectInfo})\r\n    end\r\n)\r\n\r\n--
-    Retrieves the current attacks that has been made in the game.\r\nHandlers.add(\r\n   
+    Health = Health,\r\n            MaxEnergy = MaxEnergy,\r\n            EnergyPerSec
+    = EnergyPerSec,\r\n            AverageMaxStrengthHitsToKill = AverageMaxStrengthHitsToKill,\r\n           
+    WaitTime = WaitTime,\r\n            GameTime = GameTime,\r\n            PaymentQty
+    = PaymentQty,\r\n            BonusQty = BonusQty,\r\n            MinimumPlayers
+    = MinimumPlayers\r\n            })\r\n        ao.send({\r\n            Target
+    = Msg.From,\r\n            Action = \"AOEffectInfo\",\r\n            Data = AOEffectInfo})\r\n   
+    end\r\n)\r\n\r\n-- Retrieves the current attacks that has been made in the game.\r\nHandlers.add(\r\n   
     \"GetGameAttacksInfo\",\r\n    Handlers.utils.hasMatchingTag(\"Action\", \"GetGameAttacksInfo\"),\r\n   
     function (Msg)\r\n        local json = require(\"json\")\r\n        local GameAttacksInfo
     = json.encode({\r\n            LastPlayerAttacks = LastPlayerAttacks,\r\n           
@@ -7532,7 +7534,7 @@ MonoBehaviour:
   yesButton: {fileID: 6213959843973706113}
   noButton: {fileID: 5466914663825153815}
   debug: 0
-  logLines: 0
+  logLines: 1
   lineBuffer: []
   processID: 
   consoleOn: 0

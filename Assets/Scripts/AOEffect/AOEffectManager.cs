@@ -4,10 +4,8 @@ using UnityEngine;
 using SimpleJSON;
 using System;
 using UnityEngine.Networking;
-using System.Text;
 using System.Linq;
-using JetBrains.Annotations;
-using System.Security.Cryptography;
+using UnityEngine.Rendering;
 
 [Serializable]
 public struct GameState
@@ -22,12 +20,18 @@ public struct GameState
 [Serializable]
 public class AOEffectInfo
 {
+	public string processID;
 	public int height;
 	public int width;
-	public int maxEnergy;
-	public int energyPerSec;
-	public int range;
-	public int averageMaxStrengthHitsToKill;
+	public float maxEnergy;
+	public float energyPerSec;
+	public float health;
+	public float averageMaxStrengthHitsToKill;
+	public float waitTime;
+	public float gameTime;
+	public int minimumPlayers;
+	public float paymentQty;
+	public float bonusQty;
 }
 
 public enum GameMode
@@ -52,6 +56,8 @@ public class AOEffectManager : MonoBehaviour
 	public GameState gameState;
 	public AOEffectInfo AOEffectInfo;
 	public int playersAttacks = 0;
+	public string arenaManagerProcessID = "I0sKrk8f7uirSaPaMzf3NmhxAwmaXJFoDYuwYGZl7II";
+	public List<AOEffectInfo> availableArenas = new List<AOEffectInfo>();
 	
 	[Header("References")]
 	public AOEffectCanvasManager canvasManager;
@@ -86,6 +92,7 @@ public class AOEffectManager : MonoBehaviour
 	public bool logGameState;
 	public bool waitAOEffectData;
 
+	private bool readyToPlay = false;
 	private bool registered = false;
 
 	private bool hasAlreadyFoundErrorGetGameState = false;
@@ -101,6 +108,7 @@ public class AOEffectManager : MonoBehaviour
 	private float tickThresholdTime = 5;
 
 	private float acceptedTimeDifference = 30;
+
 
 	void Awake()
 	{
@@ -169,14 +177,21 @@ public class AOEffectManager : MonoBehaviour
 			startedToCheckPlayerAttacks = false;
 		}
 
-		if(waitingSupported && gameState.waitingPlayers != null && !registered && LocalPlayerExists && gameState.waitingPlayers.ContainsKey(AOSManager.main.processID) && gameState.waitingPlayers[AOSManager.main.processID])
+		if(waitingSupported && gameState.waitingPlayers != null && !readyToPlay && LocalPlayerExists && gameState.waitingPlayers.ContainsKey(AOSManager.main.processID) && gameState.waitingPlayers[AOSManager.main.processID])
 		{
-			registered = true;
-			if(registerToGameCoroutine != null) //We know is registered from waiting list
+			if(gameState.waitingPlayers[AOSManager.main.processID])
 			{
-				StopCoroutine(registerToGameCoroutine);
-				registerToGameCoroutine = null;
-				canvasManager.RegistrationCallback(true);
+				readyToPlay = true;
+				if (registerToGameCoroutine != null) //We know is registered from waiting list
+				{
+					StopCoroutine(registerToGameCoroutine);
+					registerToGameCoroutine = null;
+					canvasManager.RegistrationCallback(true);
+				}
+			}
+			else
+			{
+				registered = true;
 			}
 		}
 	}
@@ -246,6 +261,7 @@ public class AOEffectManager : MonoBehaviour
 			gameState.timeRemaining = 0;
 		}
 
+		readyToPlay = false;
 		registered = false;
 		hasAlreadyFoundErrorGetGameState = false;
 		hasAlreadyFoundErrorGetAOEffectInfo = false;
@@ -279,11 +295,11 @@ public class AOEffectManager : MonoBehaviour
 			else if (gameState.waitingPlayers == null)
 			{
 				//BaseVersion of Arena with no info about WaitingPlayers
-				if (registered)
+				if (readyToPlay)
 				{
 					localPlayerState = AOEffectPlayerState.WaitingPaid;
 				}
-				else if(localPlayerState == AOEffectPlayerState.Playing || localPlayerState == AOEffectPlayerState.WaitingPaid || localPlayerState == AOEffectPlayerState.Waiting) //He did registration before
+				else if(localPlayerState == AOEffectPlayerState.Playing || localPlayerState == AOEffectPlayerState.WaitingPaid || localPlayerState == AOEffectPlayerState.Waiting) //He did subscription before
 				{
 					localPlayerState = AOEffectPlayerState.Waiting;
 				}
@@ -377,6 +393,9 @@ public class AOEffectManager : MonoBehaviour
 				registrationCallback.Invoke(false);
 				yield break;
 			}
+
+			registered = true;
+
 			done = false;
 			elapsedTime = 0;
 
@@ -448,7 +467,7 @@ public class AOEffectManager : MonoBehaviour
 				else
 				{
 					Debug.Log("Registered!");
-					registered = true;
+					readyToPlay = true;
 
 					yield return new WaitForSeconds(1); //Wait other two seconds to be sure that everything has been saved
 
@@ -464,7 +483,7 @@ public class AOEffectManager : MonoBehaviour
 		else
 		{
 			Debug.Log("Registered!");
-			registered = true;
+			readyToPlay = true;
 
 			yield return new WaitForSeconds(1); //Wait other two seconds to be sure that everything has been saved
 
@@ -646,13 +665,8 @@ public class AOEffectManager : MonoBehaviour
 			{
 				hasAlreadyFoundErrorGetAOEffectInfo = false;
 
-				AOEffectInfo = new AOEffectInfo();
-				AOEffectInfo.width = jsonNode["Width"];
-				AOEffectInfo.height = jsonNode["Height"];
-				AOEffectInfo.maxEnergy = jsonNode["MaxEnergy"];
-				AOEffectInfo.energyPerSec = jsonNode["EnergyPerSec"];
-				AOEffectInfo.range = jsonNode["Range"];
-				AOEffectInfo.averageMaxStrengthHitsToKill = jsonNode["AverageMaxStrengthHitsToKill"];
+				AOEffectInfo = ParseAOEffectInfo(jsonNode);
+				AOEffectInfo.processID = gameProcessID;
 
 				gridManager.CreateGrid(AOEffectInfo.height,AOEffectInfo.width);
 				if (waitAOEffectData) StartCoroutine(SendPostRequest("GetGameState", UpdateGameState));
@@ -690,6 +704,24 @@ public class AOEffectManager : MonoBehaviour
 				StartCoroutine(SendPostRequest("GetAOEffectInfo", UpdateAOEffectInfo, 3));
 			}
 		}
+	}
+
+	private AOEffectInfo ParseAOEffectInfo(JSONNode jsonNode)
+	{
+		AOEffectInfo info = new AOEffectInfo();
+		info.width = jsonNode["Width"];
+		info.height = jsonNode["Height"];
+		info.maxEnergy = jsonNode["MaxEnergy"];
+		info.energyPerSec = jsonNode["EnergyPerSec"];
+		info.health = jsonNode["Health"];
+		info.averageMaxStrengthHitsToKill = jsonNode["AverageMaxStrengthHitsToKill"];
+		info.waitTime = jsonNode["WaitTime"].AsLong / 6000;
+		info.gameTime = jsonNode["GameTime"].AsLong / 6000;
+		info.minimumPlayers = jsonNode["MinimumPlayers"];
+		info.paymentQty = jsonNode["PaymentQty"];
+		info.bonusQty = jsonNode["BonusQty"];
+
+		return info;
 	}
 
 	private void UpdateGameState(bool result, string jsonString)
@@ -757,12 +789,12 @@ public class AOEffectManager : MonoBehaviour
 
 					if (oldGameMode != gameState.gameMode) //Start Waiting
 					{
-						registered = false;
+						readyToPlay = false;
 						OnGameModeChanged?.Invoke(oldGameMode, gameState.gameMode);
 					}
 					else if(gameState.timeRemaining + acceptedTimeDifference < newTimeRemaining) //Restart Waiting because no enough player
 					{
-						registered = false;
+						readyToPlay = false;
 						OnGameModeChanged?.Invoke(GameMode.Restart, gameState.gameMode);
 					}
 				}
@@ -938,9 +970,10 @@ public class AOEffectManager : MonoBehaviour
 			}
 			else
 			{
-				if(jsonString.Contains("Not enough players registered!"))
+				if(jsonString.Contains("Not enough players registered!") || jsonString.Contains("The game has started"))
 				{
 					Debug.LogWarning("Skipping State: " + jsonString);
+					StartCoroutine(SendPostRequest("GetGameState", UpdateGameState, 3));
 				}
 				else
 				{
@@ -961,9 +994,10 @@ public class AOEffectManager : MonoBehaviour
 		}
 		else
 		{
-			if (jsonString.Contains("Not enough players registered!"))
+			if (jsonString.Contains("Not enough players registered!") || jsonString.Contains("The game has started"))
 			{
 				Debug.LogWarning("Skipping State: " + jsonString);
+				StartCoroutine(SendPostRequest("GetGameState", UpdateGameState, 3));
 			}
 			else
 			{
@@ -985,18 +1019,83 @@ public class AOEffectManager : MonoBehaviour
 		UpdateLocalPlayerState();
 	}
 
-	private IEnumerator SendPostRequest(string actionID, Action<bool,string> callback, float delay = 0)
+	public void GetAvailableArenas()
+	{
+		StartCoroutine(SendPostRequest("GetSubscribers", UpdateAvailableArenas, 0, arenaManagerProcessID));
+	}
+
+	private void UpdateAvailableArenas(bool result, string jsonString)
+	{
+		if (!result)
+		{
+			Debug.LogWarning("Problem in getting available arenas, result false");
+			StartCoroutine(SendPostRequest("GetSubscribers", UpdateAvailableArenas, 3, arenaManagerProcessID)); //Retry
+			return;
+		}
+
+		// Parse JSON string
+		JSONNode fullJsonNode = JSON.Parse(jsonString);
+
+		// Populate GameState
+		if (fullJsonNode.HasKey("Messages"))
+		{
+			jsonString = fullJsonNode["Messages"].AsArray[0]["Data"];
+
+			if (string.IsNullOrEmpty(jsonString))
+			{
+				StartCoroutine(SendPostRequest("GetSubscribers", UpdateAvailableArenas, 3, arenaManagerProcessID)); //Retry
+				Debug.LogWarning("Problem in getting available arenas. Messages Data is null");
+				return;
+			}
+
+			if (logGameState)
+			{
+				Debug.Log("Arena Subscribers INFO: " + jsonString);
+			}
+
+			JSONNode jsonNode = JSON.Parse(jsonString);
+
+			availableArenas.Clear();
+
+			foreach (KeyValuePair<string, JSONNode> kvp in jsonNode.AsObject)
+			{
+				string gameID = kvp.Key;
+				JSONNode aoEffectInfoNode = JSONNode.Parse(kvp.Value);
+
+				AOEffectInfo info = ParseAOEffectInfo(aoEffectInfoNode);
+				info.processID = gameID;
+
+				availableArenas.Add(info);
+			}
+
+			canvasManager.UpdateAvailableArenas();
+		}
+		else
+		{
+			StartCoroutine(SendPostRequest("GetSubscribers", UpdateAvailableArenas, 3, arenaManagerProcessID)); //Retry
+			Debug.LogWarning("Problem in getting available arenas. Message is null");
+		}
+	}
+
+	private IEnumerator SendPostRequest(string actionID, Action<bool,string> callback, float delay = 0, string targetProcessID = "")
 	{
 		if(delay > 0)
 		{
 			yield return new WaitForSeconds(delay);
 		}
 
+		if (string.IsNullOrEmpty(targetProcessID))
+		{
+			targetProcessID = gameProcessID;
+		}
+
 		// Define the URL
-		string url = baseUrl + gameProcessID;
+		string url = baseUrl + targetProcessID;
+
+
 
 		// Define the request body
-		string jsonBody = baseJsonBody.Replace("GAMEPROCESSID", gameProcessID).Replace("ACTIONID", actionID);
+		string jsonBody = baseJsonBody.Replace("GAMEPROCESSID", targetProcessID).Replace("ACTIONID", actionID);
 
 		// Create a UnityWebRequest object
 		UnityWebRequest request = new UnityWebRequest(url, "POST");
