@@ -237,7 +237,6 @@ public class AOEffectPlayer : MonoBehaviour
 				data.health = 0;
 				infoCanvas.SetHealth("0");
 				StartCoroutine(DelayedDestroy());
-				//transform.position = Vector3.zero;
 				hasMovedOnce = false;
 				break;
 		}
@@ -245,7 +244,6 @@ public class AOEffectPlayer : MonoBehaviour
 
 	private IEnumerator DelayedDestroy()
 	{
-
 		yield return new WaitForSeconds(1);
 		animator.SetTrigger("Die");
 		yield return new WaitForSeconds(5);

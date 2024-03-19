@@ -52,6 +52,7 @@ public class AOEffectCanvasManager : MonoBehaviour
 	[SerializeField] private TMP_Text gameInfoText;
 
 	private bool waitForAnswer = false;
+	private int eliminationState = -1;
 
 	private Coroutine gameInfoTextClearCoroutine;
 
@@ -77,11 +78,11 @@ public class AOEffectCanvasManager : MonoBehaviour
 
 	private void Update()
 	{
-		registerToGameButtonOldGame.gameObject.SetActive(!manager.WaitingExists && manager.LocalPlayerExists && !waitForAnswer && manager.gameState.gameMode != GameMode.None && (manager.localPlayerState == AOEffectPlayerState.None || manager.localPlayerState == AOEffectPlayerState.Waiting));
-		registerToGameButton.gameObject.SetActive(manager.WaitingExists && manager.LocalPlayerExists && !waitForAnswer && manager.gameState.gameMode != GameMode.None && (manager.localPlayerState == AOEffectPlayerState.None || manager.localPlayerState == AOEffectPlayerState.Waiting));
+		registerToGameButtonOldGame.gameObject.SetActive(!manager.waitingSupported && manager.LocalPlayerExists && !waitForAnswer && manager.gameState.gameMode != GameMode.None && (manager.localPlayerState == AOEffectPlayerState.None || manager.localPlayerState == AOEffectPlayerState.Waiting));
+		registerToGameButton.gameObject.SetActive(manager.waitingSupported && manager.LocalPlayerExists && !waitForAnswer && manager.gameState.gameMode != GameMode.None && (manager.localPlayerState == AOEffectPlayerState.None || manager.localPlayerState == AOEffectPlayerState.Waiting));
 		movePadPanel.SetActive(manager.LocalPlayerExists && manager.gameState.gameMode == GameMode.Playing && manager.localPlayerState == AOEffectPlayerState.Playing);
 		leaderboardAC.gameObject.SetActive(manager.gameState.gameMode == GameMode.Playing);
-		waitingPanel.gameObject.SetActive(manager.gameState.gameMode == GameMode.Waiting && manager.WaitingExists);
+		waitingPanel.gameObject.SetActive(manager.gameState.gameMode == GameMode.Waiting && manager.waitingSupported);
 	}
 
 	private void OnGameModeChanged(GameMode oldGM, GameMode newGM)
@@ -90,16 +91,16 @@ public class AOEffectCanvasManager : MonoBehaviour
 		{
 			if(playerInfoCanvases != null && playerInfoCanvases.Count > 0)
 			{
-				//Winner
-				winningPanel.SetActive(true);
-				winningContentText.text = "";
+				////Winner
+				//winningPanel.SetActive(true);
+				//winningContentText.text = "";
 
 				foreach (var player in playerInfoCanvases)
 				{
-					if(player.player.data.health > 0)
-					{
-						winningContentText.text += player.player.data.id + "\n\n";
-					}
+					//if(player.player.data.health > 0)
+					//{
+					//	winningContentText.text += player.player.data.id + "\n\n";
+					//}
 
 					Destroy(player.gameObject);
 				}
@@ -123,8 +124,6 @@ public class AOEffectCanvasManager : MonoBehaviour
 			}
 
 			waitingPanel.SetActive(false);
-			winningPanel.SetActive(false);
-			winningContentText.text = "";
 		}
 
 		if(newGM == GameMode.Waiting) //Maybe not working when game doesn't start
@@ -132,25 +131,54 @@ public class AOEffectCanvasManager : MonoBehaviour
 			StartCoroutine(DelayButtonToRegister());
 		}
 
-		if(newGM == GameMode.Playing)
+		if(newGM == GameMode.Playing) //Start Playing
 		{
-			if (AOSManager.main != null && AOSManager.main.consoleListeners.ContainsKey("Congratulations! The game has ended."))
+			if (AOSManager.main != null)
 			{
-				AOSManager.main.consoleListeners.Add("Congratulations! The game has ended.", ShowWinnerPanel);
+				if (!AOSManager.main.consoleListeners.ContainsKey("Eliminated"))
+				{
+					AOSManager.main.consoleListeners.Add("Eliminated", SetElimination);
+				}
+
+				eliminationState = 0;
 			}
+			else //We are not playing
+			{
+				eliminationState = -1;
+			}
+
+			winningPanel.SetActive(false);
+			winningContentText.text = "";
 		}
-		else if(oldGM == GameMode.Playing)
+		else if(oldGM == GameMode.Playing) //Finished Playing
 		{
-			if (AOSManager.main != null && AOSManager.main.consoleListeners.ContainsKey("Congratulations! The game has ended."))
+			if (AOSManager.main != null && AOSManager.main.consoleListeners.ContainsKey("Eliminated"))
 			{
-				AOSManager.main.consoleListeners.Remove("Congratulations! The game has ended.");
+				AOSManager.main.consoleListeners.Remove("Eliminated");
 			}
+
+			if (eliminationState == 0)
+			{
+				winningContentText.text = "Congratulations, you won! :D";
+			}
+			else if(eliminationState == 1)
+			{
+				winningContentText.text = "Sorry, you lose! :(";
+			}
+			else
+			{
+				winningContentText.text = "";
+			}
+
+			winningPanel.SetActive(true);
+
 		}
 	}
 
-	private void ShowWinnerPanel(string winMessage)
+	private void SetElimination(string winMessage)
 	{
-
+		Debug.LogWarning("Eliminated");
+		eliminationState = 1;
 	}
 
 	public void UpdateLeaderboard()
@@ -360,17 +388,27 @@ public class AOEffectCanvasManager : MonoBehaviour
 
 	IEnumerator DelayButtonToRegister()
 	{
-		waitForAnswer = true;
-		yield return new WaitForSeconds(5);
-		waitForAnswer = false;
+		if(!waitForAnswer)
+		{
+			waitForAnswer = true;
+			yield return new WaitForSeconds(2);
+			waitForAnswer = false;
+		}
 	}
 
-	private void RegistrationCallback(bool result)
+	public void RegistrationCallback(bool result)
 	{
 		waitForAnswer = false;
 		if(result)
 		{
-			if(!manager.WaitingExists) SetGameInfoText("Registration completed!");
+			if (!manager.waitingSupported)
+			{
+				SetGameInfoText("Registration completed!");
+			}
+			else
+			{
+				SetGameInfoText("");
+			}
 		}
 		else
 		{

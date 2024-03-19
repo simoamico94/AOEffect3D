@@ -438,22 +438,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4112365512054347439, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -15.000122
-      objectReference: {fileID: 0}
-    - target: {fileID: 7132001428090311479, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -13
-      objectReference: {fileID: 0}
-    - target: {fileID: 7382640106591975234, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
-      propertyPath: m_MovementType
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 8283096408093110432, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
-      propertyPath: m_MovementType
-      value: 2
-      objectReference: {fileID: 0}
     - target: {fileID: 8461885968675805502, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
       propertyPath: m_Name
       value: AOSManager

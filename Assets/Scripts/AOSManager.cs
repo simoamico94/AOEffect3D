@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using System.IO;
 using SimpleFileBrowser;
 using System;
+using JetBrains.Annotations;
 
 public enum AOSState
 {
@@ -42,7 +43,7 @@ public class AOSManager : MonoBehaviour
 	public Button walletFilePickerButton;
 	public Button loginButton;
 	public TMP_Text errorText;
-	public Toggle loadableBlueprintTogglePrefab;
+	public GameObject loadableBlueprintTogglePrefab;
 	public RectTransform loadableBlueprintParent;
 
 	[Header("Loading UI")]
@@ -74,7 +75,7 @@ public class AOSManager : MonoBehaviour
 	private List<string> commandsHistory = new List<string>();
 	private int commandsHistoryIndex = 0;
 
-	private Dictionary<string,Toggle> loadableBlueprints = new Dictionary<string, Toggle>();
+	private Dictionary<string,GameObject> loadableBlueprints = new Dictionary<string, GameObject>();
 
 	[Header("Debug")]
 	public bool debug;
@@ -82,9 +83,6 @@ public class AOSManager : MonoBehaviour
 	[SerializeField] private List<string> lineBuffer = new List<string>();
 
 	public string processID;
-
-	private Action currentCallback;
-	private string currentCatchValue;
 
 	public bool consoleOn = false;
 
@@ -113,7 +111,7 @@ public class AOSManager : MonoBehaviour
 		toggleConsoleButton.onClick.AddListener(() => ToggleConsole(!consoleOn));
 		clearConsoleButton.onClick.AddListener(() => ClearShell());
 		logoutButton.onClick.AddListener(() => Logout());
-		backLoginButton.onClick.AddListener(() => Logout());
+		backLoginButton.onClick.AddListener(() => Logout(false));
 
 		yesButton.onClick.AddListener(() => { shell.RunCommand("y"); updatePopup.SetActive(false); ClearShell(); updating = true; StartCoroutine(WaitUpdateAndLogin()); });
 		noButton.onClick.AddListener(() => { shell.RunCommand("n"); updatePopup.SetActive(false); waitAndStartCoroutine = StartCoroutine(WaitAndFinalizeLogin()); });
@@ -226,7 +224,7 @@ public class AOSManager : MonoBehaviour
 		shell.RunCommand(loginString);
 	}
 
-    public void Logout()
+    public void Logout(bool removeBlueprintsSelection = true)
     {
 		ToggleConsole(false);
 		StopAllCoroutines();
@@ -236,7 +234,7 @@ public class AOSManager : MonoBehaviour
 		processID = "";
 		processIDText.text = "";
 
-		GetLoadableBlueprints();
+		GetLoadableBlueprints(removeBlueprintsSelection);
 
 		consoleListeners.Clear();
 
@@ -246,7 +244,15 @@ public class AOSManager : MonoBehaviour
 	public void RunCommand(string command, Action<string> callback, string catchValue)
 	{
 		shell.RunCommand(command);
-		consoleListeners.Add(catchValue, callback);
+
+		if(consoleListeners.ContainsKey(catchValue)) //Updating with new callback
+		{
+			consoleListeners[catchValue] = callback;
+		}
+		else
+		{
+			consoleListeners.Add(catchValue, callback);
+		}
 	}
 
 	public void RunCommand(string command)
@@ -310,13 +316,6 @@ public class AOSManager : MonoBehaviour
 		foreach (string key in keysToRemove)
 		{
 			consoleListeners.Remove(key);
-		}
-
-		if (!string.IsNullOrEmpty(currentCatchValue) && line.Contains(currentCatchValue))
-		{
-			currentCallback?.Invoke();
-			currentCallback = null;
-			currentCatchValue = "";
 		}
 
 		if (line.StartsWith("aos process: "))
@@ -463,8 +462,6 @@ public class AOSManager : MonoBehaviour
 			if (timeElapsed >= loginTimeout)
 			{
 				longLoadingText.SetActive(true);
-				//errorText.text += "Timed out, retry. If problems persist check if there are any AOS updates available through normal cmd";
-				//Logout();
 			}
 
 			yield return null;
@@ -494,15 +491,30 @@ public class AOSManager : MonoBehaviour
 		Login();
 	}
 
-	public void GetLoadableBlueprints()
+	public void Refresh()
+	{
+		GetLoadableBlueprints();
+	}
+
+	public void GetLoadableBlueprints(bool removeBlueprintsSelection = false)
 	{
 		string directoryPath = Application.dataPath + "/StreamingAssets";
 
+		List<string> oldSelected = new List<string>();
+
 		if(loadableBlueprints != null && loadableBlueprints.Count > 0)
 		{
-			foreach(KeyValuePair<string, Toggle> b in loadableBlueprints)
+			foreach(KeyValuePair<string, GameObject> b in loadableBlueprints)
 			{
-				Destroy(b.Value.gameObject);
+				Toggle lb = b.Value.GetComponentInChildren<Toggle>();
+				Button button = b.Value.GetComponentInChildren<Button>();
+
+				if (lb.isOn)
+				{
+					oldSelected.Add(b.Key);
+				}
+
+				Destroy(b.Value);
 			}
 
 			loadableBlueprints.Clear();
@@ -510,42 +522,55 @@ public class AOSManager : MonoBehaviour
 
 		if (Directory.Exists(directoryPath))
 		{
-			// Get all files in the directory
 			string[] files = Directory.GetFiles(directoryPath);
 
-			// Iterate through each file
 			foreach (string file in files)
 			{
-				// Check if the file has a .lua extension
 				if (Path.GetExtension(file).Equals(".lua", System.StringComparison.OrdinalIgnoreCase))
 				{
-					// Get the name of the file
 					string fileName = Path.GetFileName(file);
-					Debug.Log("Loadable lua file found: " + fileName);
 
-					Toggle lb = Instantiate(loadableBlueprintTogglePrefab, loadableBlueprintParent);
+					GameObject lbGO = Instantiate(loadableBlueprintTogglePrefab, loadableBlueprintParent);
+					Toggle lb = lbGO.GetComponentInChildren<Toggle>();
+
 					lb.GetComponentInChildren<TMP_Text>(true).text = fileName;
-					loadableBlueprints.Add(file, lb);
+
+					if(oldSelected.Contains(file) && !removeBlueprintsSelection)
+					{
+						lb.isOn = true;
+					}
+
+					Button button = lbGO.GetComponentInChildren<Button>();
+
+					button.onClick.AddListener(() => DeleteFileAndRefresh(file));
+
+					loadableBlueprints.Add(file, lbGO);
 				}
 			}
 		}
+	}
+
+	protected void DeleteFileAndRefresh(string file)
+	{
+		File.Delete(file);
+		GetLoadableBlueprints();
 	}
 
 	protected IEnumerator LoadBlueprints()
     {
 		string directoryPath = Application.dataPath + "/StreamingAssets";
 
-		// Check if the directory exists
 		if (Directory.Exists(directoryPath))
 		{
-			// Get all files in the directory
 			string[] files = Directory.GetFiles(directoryPath);
 
-			foreach (KeyValuePair<string, Toggle> b in loadableBlueprints)
+			foreach (KeyValuePair<string, GameObject> b in loadableBlueprints)
 			{
-				if(b.Value.isOn)
+				Toggle lb = b.Value.GetComponentInChildren<Toggle>();
+				Button button = b.Value.GetComponentInChildren<Button>();
+
+				if (lb.isOn)
 				{
-					// Get the name of the file
 					string fileName = Path.GetFileName(b.Key);
 					Debug.Log("Loading lua file found: " + fileName);
 

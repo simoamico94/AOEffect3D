@@ -34,7 +34,8 @@ public enum GameMode
 {
 	None,
 	Waiting,
-	Playing
+	Playing,
+	Restart
 }
 
 public class AOEffectManager : MonoBehaviour
@@ -42,10 +43,10 @@ public class AOEffectManager : MonoBehaviour
 	public static AOEffectManager main { get; private set; }
 
 	public bool LocalPlayerExists => AOSManager.main != null && !string.IsNullOrEmpty(AOSManager.main.processID);
-	public bool WaitingExists => gameState.waitingPlayers != null && gameState.waitingPlayers.Count > 0;
 	public AOEffectPlayerState localPlayerState = AOEffectPlayerState.None;
 
 	public Action<GameMode,GameMode> OnGameModeChanged;
+	public bool waitingSupported;
 
 	[Header("AOEffectManager")]
 	public GameState gameState;
@@ -98,6 +99,8 @@ public class AOEffectManager : MonoBehaviour
 	private float lastTimeRemaining = -1;
 
 	private float tickThresholdTime = 5;
+
+	private float acceptedTimeDifference = 30;
 
 	void Awake()
 	{
@@ -164,6 +167,17 @@ public class AOEffectManager : MonoBehaviour
 		{
 			playersAttacks = 0;
 			startedToCheckPlayerAttacks = false;
+		}
+
+		if(waitingSupported && gameState.waitingPlayers != null && !registered && LocalPlayerExists && gameState.waitingPlayers.ContainsKey(AOSManager.main.processID) && gameState.waitingPlayers[AOSManager.main.processID])
+		{
+			registered = true;
+			if(registerToGameCoroutine != null) //We know is registered from waiting list
+			{
+				StopCoroutine(registerToGameCoroutine);
+				registerToGameCoroutine = null;
+				canvasManager.RegistrationCallback(true);
+			}
 		}
 	}
 
@@ -242,13 +256,16 @@ public class AOEffectManager : MonoBehaviour
 		gridManager.DestroyAndClearGridObjects();
 		AOEffectInfo = null;
 		gameProcessID = "";
+		waitingSupported = false;
 
 		canvasManager.ExitGame(error);
 	}
 
+	private Coroutine registerToGameCoroutine;
+
 	public void RegisterToGame(Action<bool> callback, bool onlyPay)
 	{
-		StartCoroutine(RegisterToGameCoroutine(callback, onlyPay));
+		registerToGameCoroutine = StartCoroutine(RegisterToGameCoroutine(callback, onlyPay));
 	}
 
 	public void UpdateLocalPlayerState()
@@ -265,6 +282,10 @@ public class AOEffectManager : MonoBehaviour
 				if (registered)
 				{
 					localPlayerState = AOEffectPlayerState.WaitingPaid;
+				}
+				else if(localPlayerState == AOEffectPlayerState.Playing || localPlayerState == AOEffectPlayerState.WaitingPaid || localPlayerState == AOEffectPlayerState.Waiting) //He did registration before
+				{
+					localPlayerState = AOEffectPlayerState.Waiting;
 				}
 				else
 				{
@@ -692,7 +713,7 @@ public class AOEffectManager : MonoBehaviour
 				if(hasAlreadyFoundErrorGetGameState || AOSManager.main == null)
 				{
 					Debug.LogError("Game State Data is null!");
-					canvasManager.ExitGame("Game State Data is null!");
+					ExitGame("Game State Data is null!");
 				}
 				else
 				{
@@ -716,6 +737,9 @@ public class AOEffectManager : MonoBehaviour
 			{
 				hasAlreadyFoundErrorGetGameState = false;
 
+				JSONNode timeRemaining = jsonNode["TimeRemaining"];
+				float newTimeRemaining = timeRemaining.AsLong / 1000.0f;
+
 				if (jsonNode["GameMode"] == "Playing")
 				{
 					GameMode oldGameMode = gameState.gameMode;
@@ -731,18 +755,21 @@ public class AOEffectManager : MonoBehaviour
 					GameMode oldGameMode = gameState.gameMode;
 					gameState.gameMode = GameMode.Waiting;
 
-					if (oldGameMode != gameState.gameMode)
+					if (oldGameMode != gameState.gameMode) //Start Waiting
 					{
+						registered = false;
 						OnGameModeChanged?.Invoke(oldGameMode, gameState.gameMode);
+					}
+					else if(gameState.timeRemaining + acceptedTimeDifference < newTimeRemaining) //Restart Waiting because no enough player
+					{
+						registered = false;
+						OnGameModeChanged?.Invoke(GameMode.Restart, gameState.gameMode);
 					}
 				}
 				else
 				{
 					Debug.LogError("Game mode is " + jsonNode["GameMode"].ToString());
 				}
-
-				JSONNode timeRemaining = jsonNode["TimeRemaining"];
-				float newTimeRemaining = timeRemaining.AsLong / 1000.0f;
 
                 if (lastTimeRemaining != newTimeRemaining) //Only if is changed
                 {
@@ -753,6 +780,8 @@ public class AOEffectManager : MonoBehaviour
 
 				if (jsonNode.HasKey("WaitingPlayers"))
 				{
+					waitingSupported = true;
+
 					JSONNode waitingPlayers = jsonNode["WaitingPlayers"];
 
 					if(gameState.waitingPlayers == null)
@@ -792,6 +821,10 @@ public class AOEffectManager : MonoBehaviour
 					}
 
 					canvasManager.UpdateWaitingPanel();
+				}
+				else
+				{
+					waitingSupported = false;
 				}
 
 				JSONNode playersNode = jsonNode["Players"];
@@ -891,7 +924,7 @@ public class AOEffectManager : MonoBehaviour
 				{
 					if (hasAlreadyFoundErrorGetGameState || AOSManager.main == null)
 					{
-						canvasManager.ExitGame("Game state not recognized");
+						ExitGame("Game state not recognized");
 						Debug.LogError("Game state not recognized");
 						return;
 					}
@@ -913,7 +946,7 @@ public class AOEffectManager : MonoBehaviour
 				{
 					if (hasAlreadyFoundErrorGetGameState || AOSManager.main == null)
 					{
-						canvasManager.ExitGame("TimeRemaining not found!");
+						ExitGame("TimeRemaining not found!");
 						Debug.LogError("NO KEY TimeRemaining: " + jsonString);
 						return;
 					}
@@ -936,7 +969,7 @@ public class AOEffectManager : MonoBehaviour
 			{
 				if (hasAlreadyFoundErrorGetGameState || AOSManager.main == null)
 				{
-					canvasManager.ExitGame("Messages key not found!");
+					ExitGame("Messages key not found!");
 					Debug.LogError("NO KEY Messages: " + jsonString);
 					return;
 				}

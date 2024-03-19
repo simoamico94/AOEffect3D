@@ -35,8 +35,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000017420383}
-  m_SizeDelta: {x: 0, y: 20}
+  m_AnchoredPosition: {x: 0, y: 0.000030517578}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &4360187849468468698
 MonoBehaviour:
@@ -1204,7 +1204,7 @@ RectTransform:
   m_Father: {fileID: 3448885456698184521}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -2500,7 +2500,7 @@ MonoBehaviour:
   m_Content: {fileID: 7505511340222848223}
   m_Horizontal: 0
   m_Vertical: 1
-  m_MovementType: 1
+  m_MovementType: 2
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
@@ -3518,7 +3518,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: -13}
+  m_AnchoredPosition: {x: 0, y: -13.000122}
   m_SizeDelta: {x: 0, y: 80}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &7133305694905188109
@@ -4664,9 +4664,9 @@ MonoBehaviour:
     for player, _ in pairs(Players) do\r\n        -- addLog(\"EndGame\", \"Sending
     reward of:\".. Winnings + PaymentQty .. \"to player: \" .. player) -- Useful
     for tracking rewards\r\n        sendReward(player, Winnings + tonumber(PaymentQty),
-    \"Win\")\r\n        Waiting[player] = false\r\n    end\r\n\r\n    Players = {}\r\n   
-    announce(\"Game-Ended\", \"Congratulations! The game has ended. Remaining players
-    at conclusion: \" .. Winners .. \".\")\r\n    startWaitingPeriod()\r\nend\r\n\r\n--
+    \"Win\")\r\n        Waiting[player] = false\r\n    end\r\n\r\r\n    Players =
+    {}\r\n    announce(\"Game-Ended\", \"Congratulations! The game has ended. Remaining
+    players at conclusion: \" .. Winners .. \".\")\r\n    startWaitingPeriod()\r\nend\r\n\r\n--
     Removes a listener from the listeners' list.\r\n-- @param listener: The listener
     to be removed.\r\nfunction removeListener(listener)\r\n    local idx = 0\r\n   
     for i, v in ipairs(Listeners) do\r\n        if v == listener then\r\n           
@@ -5023,7 +5023,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -15, y: -15.000122}
+  m_AnchoredPosition: {x: -15, y: -15.000244}
   m_SizeDelta: {x: 0, y: 50}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &8869855480701864880
@@ -6854,7 +6854,7 @@ MonoBehaviour:
   m_Content: {fileID: 904839642809259332}
   m_Horizontal: 0
   m_Vertical: 1
-  m_MovementType: 1
+  m_MovementType: 2
   m_Elasticity: 0.1
   m_Inertia: 1
   m_DecelerationRate: 0.135
@@ -7515,7 +7515,7 @@ MonoBehaviour:
   walletFilePickerButton: {fileID: 43759511574362278}
   loginButton: {fileID: 443154042835398762}
   errorText: {fileID: 9142462277967120000}
-  loadableBlueprintTogglePrefab: {fileID: 8369087994173026769, guid: 0c8920b44dff6d04d9fc6d37425d02b0, type: 3}
+  loadableBlueprintTogglePrefab: {fileID: 601467735938633400, guid: a438cfdb56b4de04fa86b3a75a4601a0, type: 3}
   loadableBlueprintParent: {fileID: 7505511340222848223}
   backLoginButton: {fileID: 4219340296295210564}
   longLoadingText: {fileID: 7116079825197454987}
@@ -12736,14 +12736,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
       value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 5035445999355039646}
+    - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
       objectReference: {fileID: 565512585891189945}
     - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
@@ -12751,11 +12759,23 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: Refresh
+      objectReference: {fileID: 0}
+    - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
       value: SetActive
       objectReference: {fileID: 0}
     - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: AOSManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
       value: UnityEngine.GameObject, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
@@ -12763,7 +12783,15 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_BoolArgument
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 2951833077712842030, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
@@ -13591,7 +13619,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: GetLoadableBlueprints
+      value: Refresh
       objectReference: {fileID: 0}
     - target: {fileID: 860381965111806330, guid: 280a95eb7a4141341a760af2835115b5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
