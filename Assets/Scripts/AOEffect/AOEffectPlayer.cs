@@ -201,7 +201,6 @@ public class AOEffectPlayer : MonoBehaviour
 			else
 			{
 				float dist = Vector3.Distance(transform.position, newData.pos);
-				Debug.Log(dist);
 				if (dist > 1.5f) //Pacman effect -> teleport
                 {
 					transform.position = newData.pos;
