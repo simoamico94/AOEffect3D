@@ -2,9 +2,12 @@
  This project has been developed for the Hack The Weave hackathon organized by Weavers. The bounty is to build a Graphical User Interface for ao-Effect, the first game developed on AO.
  ao-Effect is a game where each player designs their own bot to compete in an arena against others. The bots can move or attack and have a set amount of health.
  I've developed the project with Unity3d because it was for me the best way to have a multi-platform and 3D approach to it. 
- In the repository you can find all the Unity project source code, and two additional folders: one with the builds for Windows and Android and one with the custom Lua blueprints I've developed for this project.
- The Windows build is the most complete: you can create a process, customize and load blueprint and play with your bot. While the Android app is a viewer in which you can watch what happens in a ao-Effect game istance.
- Potentially I can build easily also versions on MacOS, Linux, iOS and WebGL, but I couldn't because I didn't have the possibility to test them since I don't have Mac or Linux devices.
+ In the repository you can find all the Unity project source code and one with the custom Lua blueprints I've developed for this project.
+ 
+ Here is a [folder](https://drive.google.com/drive/folders/1zsY9SOOj8xl0AcrZ_pRshSw9njkCCr5-?usp=sharing) with submission video, a zip file with Windows build and the Apk Android build
+ 
+ The Windows build is the most complete: you can create a process, customize and load blueprints and play with your bot. While the Android app is a viewer in which you can watch what happens in a ao-Effect game istance.
+ Potentially, thanks to Unity, I can easily build also versions on MacOS, Linux, iOS and WebGL, but I couldn't because I didn't have the possibility to test them since I don't have Mac or Linux devices.
  
  ![](https://github.com/simoamico94/AOEffect3D/assets/17854691/68821ffa-a6a1-4ccb-a97d-bb0260b7644e)
 
