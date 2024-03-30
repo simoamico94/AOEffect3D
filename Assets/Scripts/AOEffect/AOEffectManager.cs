@@ -5,7 +5,6 @@ using SimpleJSON;
 using System;
 using UnityEngine.Networking;
 using System.Linq;
-using UnityEngine.Rendering;
 
 [Serializable]
 public struct GameState
@@ -55,10 +54,11 @@ public class AOEffectManager : MonoBehaviour
 	[Header("AOEffectManager")]
 	public GameState gameState;
 	public AOEffectInfo AOEffectInfo;
-	public int playersAttacks = 0;
+	public int lastPlayerAttack = -1;
 	public string arenaManagerProcessID = "I0sKrk8f7uirSaPaMzf3NmhxAwmaXJFoDYuwYGZl7II";
 	public List<AOEffectInfo> availableArenas = new List<AOEffectInfo>();
-	
+	public bool exitGameWhenError;
+
 	[Header("References")]
 	public AOEffectCanvasManager canvasManager;
 	public GridManager gridManager;
@@ -138,7 +138,7 @@ public class AOEffectManager : MonoBehaviour
 				elapsedTickTime += Time.deltaTime;
 			}
 
-			if(gameState.timeRemaining != 0)
+			if(gameState.timeRemaining != 0 && gameState.timeRemaining != -1)
 			{
 				gameState.timeRemaining -= Time.deltaTime;
 
@@ -173,7 +173,7 @@ public class AOEffectManager : MonoBehaviour
 		}
 		else
 		{
-			playersAttacks = 0;
+			lastPlayerAttack = -1;
 			startedToCheckPlayerAttacks = false;
 		}
 
@@ -495,8 +495,20 @@ public class AOEffectManager : MonoBehaviour
 	{
 		if (!result)
 		{
-			Debug.LogWarning("Base AOEffect Game not supporting additional info player attacks");
-			canCheckPlayerAttacks = false;
+			if (exitGameWhenError && hasAlreadyFoundErrorCheckPlayerAttack)
+			{
+				Debug.LogWarning("Base AOEffect Game not supporting additional info player attacks");
+				canCheckPlayerAttacks = false;
+			}
+			else
+			{
+				hasAlreadyFoundErrorCheckPlayerAttack = true;
+				if (AOSManager.main != null)
+				{
+					AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+				}
+				StartCoroutine(SendPostRequest("GetGameAttacksInfo", CheckPlayerAttacks, 3));
+			}
 			return;
 		}
 
@@ -516,7 +528,7 @@ public class AOEffectManager : MonoBehaviour
 
 			if (string.IsNullOrEmpty(jsonString))
 			{
-				if (hasAlreadyFoundErrorCheckPlayerAttack || AOSManager.main == null)
+				if (exitGameWhenError && hasAlreadyFoundErrorCheckPlayerAttack)
 				{
 					Debug.LogWarning("Base AOEffect Game not supporting additional info player attacks");
 					canCheckPlayerAttacks = false;
@@ -524,7 +536,10 @@ public class AOEffectManager : MonoBehaviour
 				else
 				{
 					hasAlreadyFoundErrorCheckPlayerAttack = true;
-					AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+					if (AOSManager.main != null)
+					{
+						AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+					}
 					StartCoroutine(SendPostRequest("GetGameAttacksInfo", CheckPlayerAttacks, 3));
 				}
 
@@ -545,44 +560,58 @@ public class AOEffectManager : MonoBehaviour
 
 				JSONArray lastPlayerAttacksArray = jsonNode["LastPlayerAttacks"].AsArray;
 
-				if(lastPlayerAttacksArray.Count > playersAttacks)
+				if(lastPlayerAttacksArray.Count > 0)
 				{
-					for(int i = playersAttacks; i <  lastPlayerAttacksArray.Count; i++)
+					if (lastPlayerAttacksArray[lastPlayerAttacksArray.Count].HasKey("id")) //The Grid
 					{
-						string player = lastPlayerAttacksArray[i]["Player"];
-						string target = lastPlayerAttacksArray[i]["Target"];
+						int id = lastPlayerAttacksArray[lastPlayerAttacksArray.Count]["id"].AsInt;
 
-						AOEffectPlayer p = gameState.players.Find(p => p.data.id == player);
-						AOEffectPlayer t = gameState.players.Find(p => p.data.id == target);
-
-						bool canContinue = true;
-
-						if(p == null)
+						if(lastPlayerAttack == -1)
 						{
-							canContinue = false;
-							Debug.LogError("Can't find player " + player);
+							lastPlayerAttack = id;
 						}
-
-						if (t == null)
+						else if(lastPlayerAttack != id)
 						{
-							canContinue = false;
-							Debug.LogError("Can't find player " + target);
-						}
+							for (int i = 0; i < lastPlayerAttacksArray.Count; i++)
+							{
+								id = lastPlayerAttacksArray[i]["id"];
 
-						if(!canContinue)
-						{
-							return;
-						}
+								if(id > lastPlayerAttack)
+								{
+									lastPlayerAttack = id;
+									string player = lastPlayerAttacksArray[i]["Player"];
+									string target = lastPlayerAttacksArray[i]["Target"];
 
-						p.ShootTarget(t);
+									HandleAttack(player, target);
+								}
+							}
+						}
 					}
+					else 
+					{
+						if (lastPlayerAttack >= 0 && lastPlayerAttacksArray.Count > lastPlayerAttack)
+						{
+							for (int i = lastPlayerAttack; i < lastPlayerAttacksArray.Count; i++)
+							{
+								string player = lastPlayerAttacksArray[i]["Player"];
+								string target = lastPlayerAttacksArray[i]["Target"];
 
-					playersAttacks = lastPlayerAttacksArray.Count;
+								HandleAttack(player, target);
+							}
+						}
+
+						lastPlayerAttack = lastPlayerAttacksArray.Count;
+					}
+				}
+				
+				if(lastPlayerAttack == -1) //We know that we checked once 
+				{
+					lastPlayerAttack = 0;
 				}
 			}
 			else
 			{
-				if (hasAlreadyFoundErrorCheckPlayerAttack || AOSManager.main == null)
+				if (exitGameWhenError && hasAlreadyFoundErrorCheckPlayerAttack)
 				{
 					Debug.LogWarning("Base AOEffect Game not supporting additional info player attacks");
 					canCheckPlayerAttacks = false;
@@ -590,14 +619,17 @@ public class AOEffectManager : MonoBehaviour
 				else
 				{
 					hasAlreadyFoundErrorCheckPlayerAttack = true;
-					AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+					if (AOSManager.main != null)
+					{
+						AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+					}
 					StartCoroutine(SendPostRequest("GetGameAttacksInfo", CheckPlayerAttacks, 3));
 				}
 			}
 		}
 		else
 		{
-			if (hasAlreadyFoundErrorCheckPlayerAttack || AOSManager.main == null)
+			if (exitGameWhenError && hasAlreadyFoundErrorCheckPlayerAttack)
 			{
 				Debug.LogWarning("Base AOEffect Game not supporting additional info player attacks");
 				canCheckPlayerAttacks = false;
@@ -605,7 +637,10 @@ public class AOEffectManager : MonoBehaviour
 			else
 			{
 				hasAlreadyFoundErrorCheckPlayerAttack = true;
-				AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+				if (AOSManager.main != null)
+				{
+					AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+				}
 				StartCoroutine(SendPostRequest("GetGameAttacksInfo", CheckPlayerAttacks, 3));
 			}
 		}
@@ -613,6 +648,31 @@ public class AOEffectManager : MonoBehaviour
 		if(gameState.gameMode == GameMode.Playing && canCheckPlayerAttacks)
 		{
 			StartCoroutine(SendPostRequest("GetGameAttacksInfo", CheckPlayerAttacks));
+		}
+	}
+
+	private void HandleAttack(string player, string target)
+	{
+		AOEffectPlayer p = gameState.players.Find(p => p.data.id == player);
+		AOEffectPlayer t = gameState.players.Find(p => p.data.id == target);
+
+		bool foundPlayers = true;
+
+		if (p == null)
+		{
+			foundPlayers = false;
+			Debug.LogError("Can't find player " + player);
+		}
+
+		if (t == null)
+		{
+			foundPlayers = false;
+			Debug.LogError("Can't find player " + target);
+		}
+
+		if (foundPlayers)
+		{
+			p.ShootTarget(t);
 		}
 	}
 
@@ -708,17 +768,18 @@ public class AOEffectManager : MonoBehaviour
 	private AOEffectInfo ParseAOEffectInfo(JSONNode jsonNode)
 	{
 		AOEffectInfo info = new AOEffectInfo();
-		info.width = jsonNode["Width"];
-		info.height = jsonNode["Height"];
-		info.maxEnergy = jsonNode["MaxEnergy"];
-		info.energyPerSec = jsonNode["EnergyPerSec"];
-		info.health = jsonNode["Health"];
-		info.averageMaxStrengthHitsToKill = jsonNode["AverageMaxStrengthHitsToKill"];
-		info.waitTime = jsonNode["WaitTime"].AsLong / 60000;
-		info.gameTime = jsonNode["GameTime"].AsLong / 60000;
-		info.minimumPlayers = jsonNode["MinimumPlayers"];
-		info.paymentQty = jsonNode["PaymentQty"];
-		info.bonusQty = jsonNode["BonusQty"];
+
+		info.width = jsonNode.HasKey("Width") ? jsonNode["Width"] : -1;
+		info.height = jsonNode.HasKey("Height") ? jsonNode["Height"] : -1;
+		info.maxEnergy = jsonNode.HasKey("MaxEnergy") ? jsonNode["MaxEnergy"] : -1;
+		info.energyPerSec = jsonNode.HasKey("EnergyPerSec") ? jsonNode["EnergyPerSec"] : -1;
+		info.health = jsonNode.HasKey("Health") ? jsonNode["Health"] : -1;
+		info.averageMaxStrengthHitsToKill = jsonNode.HasKey("AverageMaxStrengthHitsToKill") ? jsonNode["AverageMaxStrengthHitsToKill"] : -1;
+		info.waitTime = jsonNode.HasKey("WaitTime") ? jsonNode["WaitTime"].AsLong / 60000 : -1;
+		info.gameTime = jsonNode.HasKey("GameTime") ? jsonNode["GameTime"].AsLong / 60000 : -1;
+		info.minimumPlayers = jsonNode.HasKey("MinimumPlayers") ? jsonNode["MinimumPlayers"] : -1;
+		info.paymentQty = jsonNode.HasKey("PaymentQty") ? jsonNode["PaymentQty"] : -1;
+		info.bonusQty = jsonNode.HasKey("BonusQty") ? jsonNode["BonusQty"] : -1;
 
 		return info;
 	}
@@ -727,7 +788,25 @@ public class AOEffectManager : MonoBehaviour
 	{
         if (!result)
         {
-			ExitGame("Error while loading AOEffect Game state. Check game process ID or internet connection");
+			if (exitGameWhenError && hasAlreadyFoundErrorGetGameState)
+			{
+				Debug.LogError("Error while loading AOEffect Game state. Check game process ID or internet connection");
+				ExitGame("Error while loading AOEffect Game state. Check game process ID or internet connection");
+			}
+			else
+			{
+				if(hasAlreadyFoundErrorGetGameState)
+				{
+					canvasManager.SetGameErrorText("Error while loading AOEffect Game state. Check game process ID or internet connection");
+				}
+
+				hasAlreadyFoundErrorGetGameState = true;
+				if (AOSManager.main != null)
+				{
+					AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+				}
+				StartCoroutine(SendPostRequest("GetGameState", UpdateGameState, 5));
+			}
 			return;
         }
 
@@ -741,15 +820,22 @@ public class AOEffectManager : MonoBehaviour
 
 			if(string.IsNullOrEmpty(jsonString))
 			{
-				if(hasAlreadyFoundErrorGetGameState || AOSManager.main == null)
+				if (exitGameWhenError && hasAlreadyFoundErrorGetGameState)
 				{
 					Debug.LogError("Game State Data is null!");
 					ExitGame("Game State Data is null!");
 				}
 				else
 				{
+					if (hasAlreadyFoundErrorGetGameState)
+					{
+						canvasManager.SetGameErrorText("Game State Data is null!");
+					}
 					hasAlreadyFoundErrorGetGameState = true;
-					AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+					if (AOSManager.main != null)
+					{
+						AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+					}
 					StartCoroutine(SendPostRequest("GetGameState", UpdateGameState, 5));
 				}
 
@@ -764,12 +850,17 @@ public class AOEffectManager : MonoBehaviour
 			JSONNode jsonNode = JSON.Parse(jsonString);
 			var keys = jsonNode.Keys;
 
-			if(jsonNode.HasKey("TimeRemaining"))
+			if(jsonNode.HasKey("GameMode"))
 			{
 				hasAlreadyFoundErrorGetGameState = false;
 
-				JSONNode timeRemaining = jsonNode["TimeRemaining"];
-				float newTimeRemaining = timeRemaining.AsLong / 1000.0f;
+				float newTimeRemaining = -1;
+
+				if (jsonNode.HasKey("TimeRemaining"))
+				{
+					JSONNode timeRemaining = jsonNode["TimeRemaining"];
+					newTimeRemaining = timeRemaining.AsLong / 1000.0f;
+				}
 
 				if (jsonNode["GameMode"] == "Playing")
 				{
@@ -802,10 +893,16 @@ public class AOEffectManager : MonoBehaviour
 					Debug.LogError("Game mode is " + jsonNode["GameMode"].ToString());
 				}
 
-                if (lastTimeRemaining != newTimeRemaining) //Only if is changed
+				if(newTimeRemaining == -1)
+				{
+					gameState.timeRemaining = -1;
+					canvasManager.UpdateTimerText(newTimeRemaining);
+				}
+
+				if (lastTimeRemaining != newTimeRemaining) //Only if is changed
                 {
 					lastTimeRemaining = newTimeRemaining;
-					gameState.timeRemaining = timeRemaining.AsLong / 1000.0f;
+					gameState.timeRemaining = newTimeRemaining;
 					canvasManager.UpdateTimerText(gameState.timeRemaining);
                 }
 
@@ -893,6 +990,23 @@ public class AOEffectManager : MonoBehaviour
 
 						newData.energy = playerNode["energy"].AsInt;
 						newData.health = playerNode["health"].AsInt;
+						if(playerNode.HasKey("lastTurn"))
+						{
+							newData.lastTurn = playerNode["lastTurn"];
+						}
+						else
+						{
+							newData.lastTurn = "";
+						}
+
+						if (playerNode.HasKey("name"))
+						{
+							newData.name = playerNode["name"];
+						}
+						else
+						{
+							newData.name = "";
+						}
 
 						player.UpdateData(newData);
 						player.State = AOEffectPlayerState.Playing;
@@ -953,7 +1067,7 @@ public class AOEffectManager : MonoBehaviour
 				}
 				else
 				{
-					if (hasAlreadyFoundErrorGetGameState || AOSManager.main == null)
+					if (exitGameWhenError && hasAlreadyFoundErrorGetGameState)
 					{
 						ExitGame("Game state not recognized");
 						Debug.LogError("Game state not recognized");
@@ -961,8 +1075,15 @@ public class AOEffectManager : MonoBehaviour
 					}
 					else
 					{
+						if (hasAlreadyFoundErrorGetGameState)
+						{
+							canvasManager.SetGameErrorText("Game state not recognized");
+						}
 						hasAlreadyFoundErrorGetGameState = true;
-						AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+						if (AOSManager.main != null)
+						{
+							AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+						}
 						StartCoroutine(SendPostRequest("GetGameState", UpdateGameState, 5));
 					}
 				}
@@ -976,16 +1097,23 @@ public class AOEffectManager : MonoBehaviour
 				}
 				else
 				{
-					if (hasAlreadyFoundErrorGetGameState || AOSManager.main == null)
+					if (exitGameWhenError && hasAlreadyFoundErrorGetGameState)
 					{
-						ExitGame("TimeRemaining not found!");
-						Debug.LogError("NO KEY TimeRemaining: " + jsonString);
+						ExitGame("GameMode not found!");
+						Debug.LogError("NO KEY GameMode: " + jsonString);
 						return;
 					}
 					else
 					{
+						if (hasAlreadyFoundErrorGetGameState)
+						{
+							canvasManager.SetGameErrorText("GameMode not found!");
+						}
 						hasAlreadyFoundErrorGetGameState = true;
-						AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+						if(AOSManager.main != null)
+						{
+							AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+						}
 						StartCoroutine(SendPostRequest("GetGameState", UpdateGameState, 5));
 					}
 				}
@@ -1000,7 +1128,7 @@ public class AOEffectManager : MonoBehaviour
 			}
 			else
 			{
-				if (hasAlreadyFoundErrorGetGameState || AOSManager.main == null)
+				if (exitGameWhenError && hasAlreadyFoundErrorGetGameState)
 				{
 					ExitGame("Messages key not found!");
 					Debug.LogError("NO KEY Messages: " + jsonString);
@@ -1008,8 +1136,15 @@ public class AOEffectManager : MonoBehaviour
 				}
 				else
 				{
+					if (hasAlreadyFoundErrorGetGameState)
+					{
+						canvasManager.SetGameErrorText("Messages key not found!");
+					}
 					hasAlreadyFoundErrorGetGameState = true;
-					AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+					if (AOSManager.main != null)
+					{
+						AOSManager.main.RunCommand("Send({ Target = Game, Action = \"Tick\"})");
+					}
 					StartCoroutine(SendPostRequest("GetGameState", UpdateGameState, 5));
 				}
 			}

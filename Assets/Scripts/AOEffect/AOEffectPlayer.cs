@@ -21,6 +21,8 @@ public struct AOEffectPlayerData
 	public Vector3 pos;
 	public int energy;
 	public int health;
+	public string lastTurn;
+	public string name;
 }
 
 [Serializable]
@@ -185,6 +187,8 @@ public class AOEffectPlayer : MonoBehaviour
 		infoCanvas.SetID(newData.id);
 		infoCanvas.SetEnergy(newData.energy.ToString());
 		infoCanvas.SetHealth(newData.health.ToString());
+		infoCanvas.SetLastTurn(newData.lastTurn);
+		infoCanvas.SetName(newData.name);
 
 		if (data.pos != newData.pos)
 		{

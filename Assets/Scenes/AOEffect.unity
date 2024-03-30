@@ -440,7 +440,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4112365512054347439, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -15.000061
+      value: -15
       objectReference: {fileID: 0}
     - target: {fileID: 5035445999355039646, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
       propertyPath: logLines
@@ -448,7 +448,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7132001428090311479, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -12.999939
+      value: -12.999878
       objectReference: {fileID: 0}
     - target: {fileID: 8461885968675805502, guid: 7fa5c1b5fea84db47a7064036f85c225, type: 3}
       propertyPath: m_Name
@@ -885,10 +885,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 316155439636145408, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2022233245}
+    - target: {fileID: 316155439636145408, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: set_mute
+      objectReference: {fileID: 0}
     - target: {fileID: 1170101680090716272, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1563842072}
+    - target: {fileID: 1260237910148601049, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1986315246242482044, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
       propertyPath: m_Name
       value: AOEffectCanvasManager
@@ -971,6 +983,34 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2368241282073678581, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3966379303807037414, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3966379303807037414, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4534257088290211292, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4709552071947590549, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2022233245}
+    - target: {fileID: 4709552071947590549, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: set_mute
+      objectReference: {fileID: 0}
+    - target: {fileID: 6035077642031699979, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8276353382629272111, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

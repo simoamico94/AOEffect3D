@@ -41,14 +41,26 @@ public class CameraController : MonoBehaviour
 		{
 			maxBounds = new Vector3(AOEffectManager.main.gridManager.gridSizeX + 5, 10, AOEffectManager.main.gridManager.gridSizeZ + 5);
 
-#if UNITY_STANDALONE || UNITY_WEBGL
-			HandleMovement();
-			HandleRotation();
-#elif UNITY_IOS || UNITY_ANDROID
-			joystickPanel.SetActive(true);
-			HandleJoystickMovement();
-			HandleJoystickRotation();
-#endif
+			if (SystemInfo.deviceType == DeviceType.Desktop)
+			{
+				HandleMovement();
+				HandleRotation();
+			}
+			else if (SystemInfo.deviceType == DeviceType.Handheld)
+			{
+				joystickPanel.SetActive(true);
+				HandleJoystickMovement();
+				HandleJoystickRotation();
+			}
+
+//#if UNITY_STANDALONE || UNITY_WEBGL
+//			HandleMovement();
+//			HandleRotation();
+//#elif UNITY_IOS || UNITY_ANDROID
+//			joystickPanel.SetActive(true);
+//			HandleJoystickMovement();
+//			HandleJoystickRotation();
+//#endif
 		}
 		else
 		{

@@ -9,6 +9,8 @@ using UnityEngine.UI;
 public class AOEffectPlayerInfoCanvas : MonoBehaviour
 {
 	public TMP_Text idText;
+	public TMP_Text nameText;
+	public TMP_Text lastTurnText;
 	public TMP_Text healthText;
 	public TMP_Text energyText;
 	public TMP_Text rankingText;
@@ -50,5 +52,31 @@ public class AOEffectPlayerInfoCanvas : MonoBehaviour
 	public void SetRanking(string ranking)
 	{
 		rankingText.text = ranking;
+	}
+
+	public void SetLastTurn(string lastTurn)
+	{
+		if(!string.IsNullOrEmpty(lastTurn))
+		{
+			lastTurnText.text = "Last Turn: " + lastTurn;
+			lastTurnText.gameObject.SetActive(true);
+		}
+		else
+		{
+			lastTurnText.gameObject.SetActive(false);
+		}
+	}
+
+	public void SetName(string name)
+	{
+		if (!string.IsNullOrEmpty(name))
+		{
+			nameText.text = name;
+			nameText.gameObject.SetActive(true);
+		}
+		else
+		{
+			nameText.gameObject.SetActive(false);
+		}
 	}
 }

@@ -1,11 +1,8 @@
-using SimpleJSON;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class AOEffectCanvasManager : MonoBehaviour
@@ -14,12 +11,14 @@ public class AOEffectCanvasManager : MonoBehaviour
 
 	[Header("AOEffectCanvasManager")]
 	public float gameInfoTextShowTime = 8;
-
+	public float gameErrorTextShowTime = 8;
+	
     [Header("IntroUI")]
     [SerializeField] private GameObject introPanel;
 	[SerializeField] private Button playGameButton;
 	[SerializeField] private TMP_InputField gameProcessInputField;
 	[SerializeField] private TMP_Text errorText;
+	[SerializeField] private GameObject generalPanel;
 
 	[Header("Available Arenas")]
 	[SerializeField] private Button showAvailableArenasButton;
@@ -63,6 +62,7 @@ public class AOEffectCanvasManager : MonoBehaviour
 	private int eliminationState = -1;
 
 	private Coroutine gameInfoTextClearCoroutine;
+	private Coroutine gameErrorTextClearCoroutine;
 
 	void Start()
     {
@@ -82,9 +82,15 @@ public class AOEffectCanvasManager : MonoBehaviour
 		{
 			SoundManager.main.PlayGameAudio();
 			ShowIntroPanel();
+			generalPanel.SetActive(true);
 		}
 
 		manager.OnGameModeChanged += OnGameModeChanged;
+
+		infoText.text = "Loading The Grid ...";
+		exitGameButton.gameObject.SetActive(false);
+		ShowGamePanel();
+		manager.LoadGame("03I7E-3wkTZa__Bn1Qq5flYrtEQ7NkcoD9Ctg4o2mNI");
 	}
 
 	private void Update()
@@ -237,6 +243,8 @@ public class AOEffectCanvasManager : MonoBehaviour
 			c.SetEnergy(p.data.energy.ToString());
 			c.SetHealth(p.data.health.ToString());
 			c.SetID(p.data.id.ToString());
+			c.SetLastTurn(p.data.lastTurn);
+			c.SetName(p.data.name);
 			c.SetRanking(p.ranking.ToString());
 			c.player = p;
 
@@ -296,18 +304,43 @@ public class AOEffectCanvasManager : MonoBehaviour
 
 	public void UpdateTimerText(float time)
     {
-        if(manager.gameState.gameMode == GameMode.Playing)
-        {
-            infoText.text = $"Game will end in {Mathf.RoundToInt(time)} s";
+		if (time == -1)
+		{
+			if(manager.gameState.players.Count > 0)
+			{
+				//The Grid
+				infoText.text = $"Remaining players: {manager.gameState.players.Count}";
+			}
+		}
+		else if (manager.gameState.gameMode == GameMode.Playing)
+		{
+			infoText.text = $"Game will end in {Mathf.RoundToInt(time)} s";
 		}
 		else if (manager.gameState.gameMode == GameMode.Waiting)
-        {
+		{
 			infoText.text = $"Next game in {Mathf.RoundToInt(time)} s";
 		}
-        else
-        {
-            infoText.text = "Problems with AOEffect loading";
-        }
+		else
+		{
+			infoText.text = "Problems with AOEffect loading";
+		}
+	}
+
+	public void SetGameErrorText(string text)
+	{
+		errorText.text = text;
+		if (gameErrorTextClearCoroutine != null)
+		{
+			StopCoroutine(gameErrorTextClearCoroutine);
+		}
+
+		gameErrorTextClearCoroutine = StartCoroutine(GameErrorTextClear());
+	}
+
+	IEnumerator GameErrorTextClear()
+	{
+		yield return new WaitForSeconds(gameErrorTextShowTime);
+		errorText.text = "";
 	}
 
 	public void SetGameInfoText(string text)
@@ -346,9 +379,10 @@ public class AOEffectCanvasManager : MonoBehaviour
     {
 		introPanel.SetActive(false);
 		gamePanel.SetActive(false);
+		generalPanel.SetActive(false);
 	}
 
-    public void ExitGame(string error = null)
+	public void ExitGame(string error = null)
     {
 		leaderboardAC.SetTrigger("Reset");
 
@@ -360,12 +394,17 @@ public class AOEffectCanvasManager : MonoBehaviour
 
 		if (error != null)
         {
-			errorText.text = error;
+			SetGameErrorText(error);
 		}
         else
         {
 			errorText.text = "";
 		}
+	}
+
+	public void LogError(string error)
+	{
+
 	}
 
 	public void LoadAvailableArena(string gameID)
@@ -379,6 +418,7 @@ public class AOEffectCanvasManager : MonoBehaviour
 		if (state == AOSState.LoggedIn)
 		{
 			ShowIntroPanel();
+			generalPanel.SetActive(true);
 			SoundManager.main.PlayGameAudio();
 		}
 		else
@@ -392,7 +432,7 @@ public class AOEffectCanvasManager : MonoBehaviour
     {
         if(string.IsNullOrEmpty(gameProcessInputField.text))
         {
-            errorText.text = "Arena process ID is empty! You need to insert a valid arena process ID to continue";
+			SetGameErrorText("Arena process ID is empty! You need to insert a valid arena process ID to continue");
         }
         else
         {
