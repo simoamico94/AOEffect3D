@@ -26,7 +26,9 @@ jobs:
               with:
                   node-version: 18.x
             - name: 'Sync repo to Protocol Land'
-              run: npx @protocol.land/sync
+              run: |
+                  export NODE_OPTIONS="--max_old_space_size=4096"
+                  npx @protocol.land/sync
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   REPO_TITLE: ${{ github.event.repository.name }}
