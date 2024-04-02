@@ -1,0 +1,15 @@
+{
+  "name": "testaoconnect",
+  "version": "1.0.0",
+  "description": "",
+  "main": "aoconnectWrapper.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@permaweb/aoconnect": "^0.0.51"
+  }
+}
