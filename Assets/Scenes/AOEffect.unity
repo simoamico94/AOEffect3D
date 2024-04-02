@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.04783006, g: 0.010123315, b: 0.12395749, a: 1}
+  m_IndirectSpecularColor: {r: 0.073845915, g: 0.0330576, b: 0.14062697, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -889,18 +889,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 2022233245}
-    - target: {fileID: 316155439636145408, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: set_mute
-      objectReference: {fileID: 0}
     - target: {fileID: 1170101680090716272, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1563842072}
-    - target: {fileID: 1260237910148601049, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 1986315246242482044, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
       propertyPath: m_Name
       value: AOEffectCanvasManager
@@ -985,34 +977,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3966379303807037414, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3966379303807037414, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4534257088290211292, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: -100
-      objectReference: {fileID: 0}
     - target: {fileID: 4709552071947590549, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 2022233245}
-    - target: {fileID: 4709552071947590549, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: set_mute
-      objectReference: {fileID: 0}
-    - target: {fileID: 6035077642031699979, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8276353382629272111, guid: 8c85cb5e6c134834fa65a40020c061d9, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
