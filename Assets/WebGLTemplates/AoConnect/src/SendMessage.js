@@ -1,9 +1,9 @@
 import { connect, createDataItemSigner } from '@permaweb/aoconnect'
 
-export async function evaluate(pid, data) {
-    // connect wallet 
-    console.log(pid);
-    console.log(data);
+export async function sendMessage(pid, data) {
+  // connect wallet 
+  console.log(pid);
+  console.log(data);
 
   await globalThis.arweaveWallet.connect([
     'SIGN_TRANSACTION'

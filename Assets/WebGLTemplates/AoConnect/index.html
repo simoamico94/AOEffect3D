@@ -169,6 +169,10 @@
       document.body.appendChild(script);
 
     </script>
-   <script type="module" src="aoconnectWrapper.js"></script>
+   <script type="module">
+    import { UnityAO } from './aoconnectWrapper.js'
+    
+    globalThis.UnityAO = UnityAO
+    </script>
   </body>
 </html>

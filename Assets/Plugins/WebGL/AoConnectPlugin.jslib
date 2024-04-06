@@ -1,9 +1,9 @@
 
 mergeInto(LibraryManager.library, {
-    evaluateUnity: function (pidPtr, dataPtr) {
+    sendMessageUnity: function (pidPtr, dataPtr) {
         console.log("loading");
         var pid = UTF8ToString(pidPtr);
         var data = UTF8ToString(dataPtr);
-        return evaluate(pid, data);
+        return UnityAO.sendMessage(pid, data);
     }
 });

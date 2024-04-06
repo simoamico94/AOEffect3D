@@ -5,7 +5,7 @@ using UnityEngine;
 public class AOConnectManager : MonoBehaviour
 {
 	[DllImport("__Internal")]
-	private static extern void evaluateUnity(string pid, string data);
+	private static extern void sendMessageUnity(string pid, string data);
 
 	public TMP_InputField inputFieldPid;
 	public TMP_InputField inputFieldData;
@@ -20,7 +20,7 @@ public class AOConnectManager : MonoBehaviour
 	{
 		if (Application.platform == RuntimePlatform.WebGLPlayer)
 		{
-			evaluateUnity(pid, data);
+            sendMessageUnity(pid, data);
 		}
 	}
 }
