@@ -151,7 +151,7 @@ public class AOEffectPlayer : MonoBehaviour
 		{
 			if(transform.position != data.pos)
 			{
-				Debug.Log(Vector3.Distance(transform.position, data.pos));
+				//Debug.Log(Vector3.Distance(transform.position, data.pos));
 				//transform.LookAt(data.pos);
 			}
 		}

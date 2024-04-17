@@ -109,6 +109,9 @@ public class AOEffectManager : MonoBehaviour
 
 	private float acceptedTimeDifference = 30;
 
+	private int baseTimeout = 5;
+	private int extendedTimeout = 30;
+	private int actualTimeout = 5;
 
 	void Awake()
 	{
@@ -893,17 +896,21 @@ public class AOEffectManager : MonoBehaviour
 					Debug.LogError("Game mode is " + jsonNode["GameMode"].ToString());
 				}
 
+				bool updateTimerText = false;
+
 				if(newTimeRemaining == -1)
 				{
 					gameState.timeRemaining = -1;
-					canvasManager.UpdateTimerText(newTimeRemaining);
+					updateTimerText = true;
+					//canvasManager.UpdateTimerText(newTimeRemaining);
 				}
 
 				if (lastTimeRemaining != newTimeRemaining) //Only if is changed
                 {
 					lastTimeRemaining = newTimeRemaining;
 					gameState.timeRemaining = newTimeRemaining;
-					canvasManager.UpdateTimerText(gameState.timeRemaining);
+					updateTimerText = true;
+					//canvasManager.UpdateTimerText(gameState.timeRemaining);
                 }
 
 				if (jsonNode.HasKey("WaitingPlayers"))
@@ -990,9 +997,35 @@ public class AOEffectManager : MonoBehaviour
 
 						newData.energy = playerNode["energy"].AsInt;
 						newData.health = playerNode["health"].AsInt;
+
 						if(playerNode.HasKey("lastTurn"))
 						{
-							newData.lastTurn = playerNode["lastTurn"];
+							string lastTurn = "";
+
+							if (!string.IsNullOrEmpty(playerNode["lastTurn"]))
+							{
+								long timestamp = playerNode["lastTurn"].AsLong;
+
+								DateTime dateTime = DateTimeOffset.FromUnixTimeMilliseconds(timestamp).LocalDateTime;
+
+								TimeZoneInfo localTimeZone = TimeZoneInfo.Local;
+
+								DateTime localDateTime = TimeZoneInfo.ConvertTime(dateTime, localTimeZone);
+
+								string format;
+								if (localTimeZone.Id.StartsWith("en-US"))
+								{
+									format = "MM/dd/yyyy h:mm:ss tt"; 
+								}
+								else
+								{
+									format = "dd/MM/yyyy HH:mm:ss"; 
+								}
+
+								lastTurn = localDateTime.ToString(format);
+							}
+							
+							newData.lastTurn = lastTurn;
 						}
 						else
 						{
@@ -1086,6 +1119,11 @@ public class AOEffectManager : MonoBehaviour
 						}
 						StartCoroutine(SendPostRequest("GetGameState", UpdateGameState, 5));
 					}
+				}
+
+				if(updateTimerText)
+				{
+					canvasManager.UpdateTimerText(gameState.timeRemaining);
 				}
 			}
 			else
@@ -1223,39 +1261,34 @@ public class AOEffectManager : MonoBehaviour
 			targetProcessID = gameProcessID;
 		}
 
-		// Define the URL
 		string url = baseUrl + targetProcessID;
 
-
-
-		// Define the request body
 		string jsonBody = baseJsonBody.Replace("GAMEPROCESSID", targetProcessID).Replace("ACTIONID", actionID);
 
-		// Create a UnityWebRequest object
 		UnityWebRequest request = new UnityWebRequest(url, "POST");
 
-		// Set the request body
 		byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonBody);
 		request.uploadHandler = new UploadHandlerRaw(bodyRaw);
 		request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
-		request.timeout = 5;
-		// Set the request headers
+		request.timeout = actualTimeout;
 		request.SetRequestHeader("Content-Type", "application/json");
 
-		// Send the request and wait for the response
 		yield return request.SendWebRequest();
 
-
-		// Check for errors
 		if (request.result != UnityWebRequest.Result.Success)
 		{
+			if(request.error.Contains("timeout"))
+			{
+				actualTimeout = extendedTimeout;
+			}
 			Debug.LogError("Error: " + request.error);
 			callback.Invoke(false, "Error: " + request.error);
 		}
 		else
 		{
-			// Print the response
-			if(string.IsNullOrEmpty(request.downloadHandler.text))
+			actualTimeout = baseTimeout;
+
+			if (string.IsNullOrEmpty(request.downloadHandler.text))
 			{
 				Debug.LogError("JSON is null!");
 				callback.Invoke(false, "JSON is null!");
@@ -1263,7 +1296,6 @@ public class AOEffectManager : MonoBehaviour
 			else
 			{
 				callback.Invoke(true, request.downloadHandler.text);
-				//UpdateGameState(request.downloadHandler.text);
 			}
 		}
 	}

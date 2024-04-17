@@ -429,7 +429,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "Controls\n\nDestkop: \nMove with WASD or Arrows\nRotate with right mouse
-    click and pan\n\nMobile:\nLeft joystick to move\nRight joystick to rotate"
+    click and pan\n\nMobile (put device in Landscape):\nLeft joystick to move\nRight
+    joystick to rotate"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

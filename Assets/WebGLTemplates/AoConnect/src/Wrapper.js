@@ -1,7 +1,12 @@
-import { sendMessage } from './SendMessage.js'
-import { spawnProcess } from './SpawnProcess.js'
+import { sendMessage } from './sendMessage.js'
+import { spawnProcess } from './spawnProcess.js'
+import { connectArweaveWallet, fetchProcesses } from './connectWallet.js'
+//import { loadLua } from './loadLua.js'
 
 export const UnityAO = {
     sendMessage,
-    spawnProcess
+    spawnProcess,
+    connectArweaveWallet,
+    fetchProcesses
+    //loadLua
 }

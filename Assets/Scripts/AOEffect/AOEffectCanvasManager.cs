@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Web;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -64,6 +67,9 @@ public class AOEffectCanvasManager : MonoBehaviour
 	private Coroutine gameInfoTextClearCoroutine;
 	private Coroutine gameErrorTextClearCoroutine;
 
+	[DllImport("__Internal")]
+	private static extern string GetURLFromQueryStr();
+
 	void Start()
     {
         AOSManager.OnAOSStateChanged += OnAOSStateChanged;
@@ -87,10 +93,34 @@ public class AOEffectCanvasManager : MonoBehaviour
 
 		manager.OnGameModeChanged += OnGameModeChanged;
 
+
+
 		infoText.text = "Loading The Grid ...";
 		exitGameButton.gameObject.SetActive(false);
 		ShowGamePanel();
-		manager.LoadGame("03I7E-3wkTZa__Bn1Qq5flYrtEQ7NkcoD9Ctg4o2mNI");
+
+		string processID = "wudLa8_VIjHZ6VA5ZG1ZHZs5CYkaIUw4Je_ePYEqmGQ";
+
+#if UNITY_EDITOR
+		manager.LoadGame(processID);
+		return;
+#endif
+
+		string urlString = GetURLFromQueryStr();
+
+		Uri uri = new Uri(urlString);
+
+		string query = uri.Query;
+		var queryParameters = HttpUtility.ParseQueryString(query);
+
+		string key = "id";
+		if (queryParameters.Count > 0 && queryParameters.AllKeys.Contains(key))
+		{
+			processID = queryParameters[key];
+			Debug.LogError("ProcessID is " + processID);
+		}
+
+		manager.LoadGame(processID);
 	}
 
 	private void Update()

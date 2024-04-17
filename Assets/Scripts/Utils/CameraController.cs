@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
@@ -16,17 +17,18 @@ public class CameraController : MonoBehaviour
 	private Vector3 maxBounds;
 
 	private bool isRotating;
-	private Vector2 previousTouchPosition;
-	private float initialTouchDistance;
-	private float lastTouchDistance;
 
 	private Vector3 startPos;
 	private Quaternion startRot;
+
+	private bool isMobile;
 
 	private void Start()
 	{
 		startPos = transform.position;
 		startRot = transform.rotation;
+
+		isMobile = IsMobile();
 	}
 
 	void Update()
@@ -41,35 +43,41 @@ public class CameraController : MonoBehaviour
 		{
 			maxBounds = new Vector3(AOEffectManager.main.gridManager.gridSizeX + 5, 10, AOEffectManager.main.gridManager.gridSizeZ + 5);
 
-			if (SystemInfo.deviceType == DeviceType.Desktop)
+			if (!isMobile)
 			{
 				HandleMovement();
 				HandleRotation();
 			}
-			else if (SystemInfo.deviceType == DeviceType.Handheld)
+			else
 			{
 				joystickPanel.SetActive(true);
 				HandleJoystickMovement();
 				HandleJoystickRotation();
 			}
-
-//#if UNITY_STANDALONE || UNITY_WEBGL
-//			HandleMovement();
-//			HandleRotation();
-//#elif UNITY_IOS || UNITY_ANDROID
-//			joystickPanel.SetActive(true);
-//			HandleJoystickMovement();
-//			HandleJoystickRotation();
-//#endif
 		}
 		else
 		{
-#if UNITY_IOS || UNITY_ANDROID
-			joystickPanel.SetActive(false);
-#endif
+			if(isMobile)
+			{
+				joystickPanel.SetActive(false);
+			}
+
 			transform.position = startPos;
 			transform.rotation = startRot;
 		}
+	}
+
+	private bool IsMobile()
+	{
+#if UNITY_EDITOR
+		return false;
+#elif UNITY_WEBGL
+		return Application.isMobilePlatform;
+#elif UNITY_ANDROID || UNITY_IOS
+		return true;
+#else
+		return false;
+#endif
 	}
 
 	void HandleMovement()
